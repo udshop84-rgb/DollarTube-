@@ -1,0 +1,21 @@
+{
+  "name": "dollartube-backend",
+  "version": "1.0.0",
+  "description": "Backend + database for the DollarTube reward app. Balance is server-computed from a verified event ledger only.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "initdb": "node db.js --init"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "jsonwebtoken": "^9.0.2",
+    "uuid": "^9.0.1"
+  }
+}
