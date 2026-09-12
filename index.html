@@ -1,0 +1,3030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#f5efe4" />
+<meta name="description" content="DollarTube — Play Monkey Run, complete surveys, and cash out real money. Free to play, real rewards." />
+<title>DollarTube — Play & Earn Real Money</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #0a0705; --bg-2: #150d07; --panel: #1c1209; --panel-2: #251709;
+    --border: rgba(255,180,80,0.18);
+    --gold: #ffce4a; --gold-2: #ff9f1c;
+    --text: #f5e8d0; --muted: #a89178;
+    --danger: #ff5b4a; --ok: #5bd07a;
+    --shadow: 0 6px 24px rgba(0,0,0,0.55);
+    --radius: 16px;
+    --nav-h: 68px;
+    --top-h: 62px;
+  }
+  html, body {
+    width: 100%; height: 100%;
+    background: var(--bg); color: var(--text);
+    font-family: 'Trebuchet MS', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: var(--top-h);
+    z-index: 40;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px;
+    background: linear-gradient(180deg, rgba(20,10,4,0.98), rgba(20,10,4,0.85));
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    gap: 8px;
+  }
+  .logo {
+    font-weight: 900; letter-spacing: 1.5px;
+    font-size: clamp(13px, 3.4vw, 18px);
+    color: var(--gold);
+    text-shadow: 0 0 14px rgba(255,180,40,0.5);
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .logo .brand-mark { font-size: 1.1em; }
+  .balance-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(180deg, rgba(255,200,80,0.18), rgba(255,150,20,0.08));
+    border: 1px solid rgba(255,200,80,0.4);
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--gold);
+    font-weight: 900;
+    font-size: clamp(12px, 3.2vw, 15px);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .balance-chip:hover { transform: translateY(-1px); }
+  .balance-chip .cur-code {
+    font-size: 0.7em;
+    opacity: 0.75;
+    font-weight: 800;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .theme-btn, .menu-btn {
+    background: rgba(255,200,80,0.10);
+    border: 1px solid var(--border);
+    color: var(--gold);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease, background 0.2s ease;
+    font-family: inherit;
+  }
+  .theme-btn:hover { transform: rotate(20deg) scale(1.08); background: rgba(255,200,80,0.22); }
+  .menu-btn:hover { transform: scale(1.08); background: rgba(255,200,80,0.22); }
+
+  /* ===== MENU DRAWER ===== */
+  .menu-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 90;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .menu-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .menu-drawer {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: min(320px, 82vw);
+    background: var(--panel);
+    border-left: 1px solid var(--border);
+    z-index: 95;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -12px 0 40px rgba(0,0,0,0.6);
+    overflow-y: auto;
+  }
+  .menu-drawer.show { transform: translateX(0); }
+
+  .menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, rgba(255,200,80,0.10), rgba(255,150,20,0.04));
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    backdrop-filter: blur(8px);
+  }
+  .menu-header h2 {
+    font-size: clamp(15px, 4vw, 18px);
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  .menu-close {
+    width: 34px; height: 34px;
+    background: rgba(255,90,60,0.15);
+    border: 1px solid rgba(255,90,60,0.35);
+    color: var(--danger);
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .menu-close:hover { background: rgba(255,90,60,0.28); }
+
+  .menu-section-title {
+    padding: 16px 18px 6px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.85;
+  }
+  .menu-list {
+    list-style: none;
+    padding: 0 10px;
+    margin: 0;
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: clamp(13px, 3.4vw, 15px);
+    font-weight: 700;
+    transition: background 0.15s ease, transform 0.1s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+  }
+  .menu-item:hover { background: rgba(255,200,80,0.10); }
+  .menu-item:active { transform: scale(0.98); }
+  .menu-item .mi {
+    width: 32px; height: 32px;
+    border-radius: 9px;
+    background: rgba(255,200,80,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .menu-item .mt { flex: 1; min-width: 0; }
+  .menu-item .ms {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 1px;
+  }
+  .menu-item .arrow {
+    color: var(--muted);
+    font-size: 14px;
+    opacity: 0.6;
+  }
+  .menu-footer {
+    margin-top: auto;
+    padding: 18px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+  .menu-footer .brand {
+    color: var(--gold);
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+  body.light .menu-drawer { background: #ffffff; }
+  body.light .menu-item:hover { background: rgba(184,132,26,0.10); }
+
+  /* ===== VIEWS ===== */
+  .view {
+    position: fixed;
+    top: var(--top-h);
+    left: 0; right: 0;
+    bottom: var(--nav-h);
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+    padding: 22px 18px 30px;
+  }
+  .view.active { opacity: 1; pointer-events: auto; }
+  .view::-webkit-scrollbar { width: 6px; }
+  .view::-webkit-scrollbar-thumb { background: rgba(255,180,80,0.15); border-radius: 3px; }
+  .view-inner { max-width: 720px; margin: 0 auto; }
+
+  /* ===== SHARED ===== */
+  .section-title {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 900; letter-spacing: 1px;
+    color: var(--gold); margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: clamp(12px, 3vw, 14px);
+    color: var(--muted); margin-bottom: 20px;
+  }
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-size: clamp(16px, 4vw, 22px);
+    font-weight: 900; letter-spacing: 2px;
+    color: #2a1400;
+    background: linear-gradient(180deg, #ffd166, #ff9f1c);
+    border-radius: 14px;
+    padding: 14px 36px;
+    box-shadow: 0 6px 0 #8a4b00, 0 12px 28px rgba(255,150,0,0.35);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+    cursor: pointer; border: none; font-family: inherit;
+  }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #8a4b00; }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px; margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+  .card h3 {
+    font-size: clamp(14px, 3.6vw, 17px);
+    margin-bottom: 8px; color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .card p, .card ul, .card ol {
+    font-size: clamp(12px, 3vw, 14px);
+    color: var(--muted); line-height: 1.75;
+  }
+  .card ul, .card ol { padding-left: 20px; line-height: 1.9; }
+  .card h4 {
+    font-size: clamp(13px, 3.2vw, 15px);
+    color: var(--text);
+    margin: 14px 0 6px;
+  }
+  .card a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+  /* ===== HOME ===== */
+  .hero {
+    text-align: center;
+    padding: 22px 16px 28px;
+    border-radius: var(--radius);
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,180,60,0.20), transparent 60%),
+      linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 8vw, 52px);
+    font-weight: 900; letter-spacing: 3px;
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(255,180,40,0.55), 0 6px 0 #4a2a00;
+    margin-bottom: 6px;
+  }
+  .hero p { color: #e8d9c0; opacity: 0.85; font-size: clamp(12px,3vw,15px); margin-bottom: 20px; }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 10px; text-align: center;
+  }
+  .stat .v {
+    font-size: clamp(18px, 5vw, 26px);
+    font-weight: 900; color: var(--gold);
+    display: block; margin-bottom: 2px;
+  }
+  .stat .l {
+    font-size: clamp(10px, 2.4vw, 12px);
+    text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
+  }
+
+  /* ===== PLAY ===== */
+  #gameFrame {
+    position: relative;
+    width: 100%; height: 58vh;
+    min-height: 340px; max-height: 640px;
+    background: #0a0705; overflow: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  #game { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+  #game.locked { cursor: none; }
+  #hud { position: absolute; inset: 0; pointer-events: none; font-size: clamp(12px, 3vw, 17px); z-index: 5; }
+  .hud-tl { position: absolute; top: 12px; left: 14px; text-shadow: 0 2px 6px #000; font-weight: 700; color: #fff; }
+  .hud-tr { position: absolute; top: 12px; right: 14px; text-align: right; text-shadow: 0 2px 6px #000; font-weight: 700; color: #fff; }
+  .hud-tc { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); text-shadow: 0 2px 6px #000; font-weight: 700; color: #fff; }
+  .hud-bl {
+    position: absolute; bottom: 10px; left: 14px;
+    font-size: clamp(10px, 2.4vw, 13px);
+    text-shadow: 0 2px 6px #000;
+    letter-spacing: 0.5px; color: #fff;
+  }
+  #relicSlots span { margin-right: 10px; opacity: 0.35; }
+  #relicSlots span.on { opacity: 1; color: var(--gold); }
+
+  .overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 45%, rgba(70,40,15,0.72), rgba(0,0,0,0.92));
+    z-index: 8; text-align: center; padding: 20px;
+  }
+  .overlay.hidden { display: none; }
+  .overlay h1 {
+    font-size: clamp(26px, 6.5vw, 50px);
+    font-weight: 900; letter-spacing: 3px;
+    color: var(--gold);
+    text-shadow: 0 0 25px rgba(255,180,40,0.55), 0 4px 0 #4a2a00;
+    margin-bottom: 8px;
+  }
+  .overlay p {
+    font-size: clamp(12px, 3vw, 16px);
+    color: #e8d9c0; opacity: 0.9;
+    margin-bottom: 24px;
+  }
+  .overlay .btn-primary { font-size: clamp(15px, 4vw, 20px); padding: 12px 36px; }
+  .overlay.gameover { background: rgba(20,0,0,0.85); }
+  .overlay.gameover h1 { color: var(--danger); }
+
+  #flash { position: absolute; inset: 0; pointer-events: none; opacity: 0; z-index: 6; transition: opacity 0.35s ease-out; }
+  .play-hint { text-align: center; color: var(--muted); font-size: clamp(10px, 2.6vw, 13px); margin-bottom: 22px; }
+
+  /* ===== MINI GAMES ===== */
+  .minigame-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  .mg-card {
+    position: relative;
+    background: linear-gradient(160deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 12px;
+    text-align: center; cursor: pointer;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+    overflow: hidden;
+  }
+  .mg-card:hover { transform: translateY(-3px); border-color: rgba(255,200,80,0.5); }
+  .mg-ic { font-size: clamp(28px, 7vw, 38px); margin-bottom: 8px; }
+  .mg-title { font-size: clamp(13px, 3.2vw, 15px); font-weight: 800; color: var(--gold); margin-bottom: 3px; }
+  .mg-desc { font-size: clamp(10px, 2.4vw, 12px); color: var(--muted); }
+
+  .modal {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 60; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .modal.show { display: flex; }
+  .modal-box {
+    width: 100%; max-width: 480px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .modal-head h3 { color: var(--gold); font-size: clamp(16px, 4vw, 20px); }
+  .modal-close {
+    background: rgba(255,90,60,0.15);
+    border: 1px solid rgba(255,90,60,0.35);
+    color: var(--danger);
+    padding: 6px 12px; border-radius: 10px;
+    font-weight: 800; font-size: 13px;
+    cursor: pointer; font-family: inherit;
+  }
+  #miniCanvas {
+    display: block; width: 100%; aspect-ratio: 1/1;
+    background: #07040a;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    touch-action: none;
+  }
+  .mini-info { display: flex; justify-content: space-between; margin-top: 10px; font-size: clamp(12px, 3vw, 14px); color: var(--muted); }
+  .mini-info b { color: var(--gold); }
+  .mini-msg { text-align: center; color: var(--muted); font-size: clamp(11px, 2.8vw, 13px); margin-top: 10px; min-height: 18px; }
+
+  /* ===== EARN ===== */
+  .daily-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px; }
+  .day {
+    aspect-ratio: 1/1.15;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: clamp(10px, 2.4vw, 12px);
+    color: var(--muted); padding: 4px;
+  }
+  .day .d { font-size: clamp(9px, 2.2vw, 11px); opacity: 0.7; }
+  .day .r { font-size: clamp(11px, 2.8vw, 14px); color: var(--gold); font-weight: 900; margin-top: 2px; }
+  .day.claimed { background: rgba(91,208,122,0.12); border-color: rgba(91,208,122,0.5); color: var(--ok); }
+  .day.today { background: rgba(255,200,80,0.15); border-color: var(--gold); transform: scale(1.06); }
+
+  .survey-card {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  }
+  .survey-card .sicon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #5b9bff, #2c5fc4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; color: #fff; flex-shrink: 0;
+  }
+  .survey-card.done .sicon { background: linear-gradient(135deg, #5bd07a, #2a9d4a); }
+  .survey-card .sinfo { flex: 1; min-width: 0; }
+  .survey-card .sinfo .st { font-size: clamp(13px,3.2vw,15px); font-weight: 700; margin-bottom: 2px; }
+  .survey-card .sinfo .sd { font-size: clamp(10px,2.6vw,12px); color: var(--muted); }
+  .survey-card .sinfo .sr { font-size: clamp(11px,2.8vw,13px); color: var(--ok); font-weight: 800; margin-top: 4px; }
+  .survey-card button {
+    padding: 10px 16px; border-radius: 10px;
+    font-size: clamp(11px, 2.8vw, 13px);
+    font-weight: 800; color: #2a1400;
+    background: linear-gradient(180deg, #ffd166, #ff9f1c);
+    box-shadow: 0 3px 0 #8a4b00;
+    flex-shrink: 0; cursor: pointer;
+    border: none; font-family: inherit;
+  }
+  .survey-card button:disabled { background: #443322; color: #886644; box-shadow: 0 3px 0 #221100; cursor: not-allowed; }
+  .survey-card .time-badge {
+    font-size: 10px; padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(91,155,255,0.15);
+    color: #5b9bff; font-weight: 800;
+    display: inline-block; margin-top: 4px;
+  }
+
+  .mission {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  }
+  .mission .icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    background: linear-gradient(135deg, #ffd166, #ff9f1c);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .mission .info { flex: 1; min-width: 0; }
+  .mission .info .t { font-size: clamp(13px,3.2vw,15px); font-weight: 700; }
+  .mission .info .d { font-size: clamp(10px,2.6vw,12px); color: var(--muted); margin-top: 2px; }
+  .mission .info .bar { height: 6px; margin-top: 8px; background: rgba(0,0,0,0.4); border-radius: 3px; overflow: hidden; }
+  .mission .info .bar > span { display: block; height: 100%; background: linear-gradient(90deg, #ffd166, #ff9f1c); border-radius: 3px; }
+  .mission button {
+    padding: 8px 14px; border-radius: 10px;
+    font-size: clamp(11px, 2.8vw, 13px);
+    font-weight: 800; color: #2a1400;
+    background: linear-gradient(180deg, #ffd166, #ff9f1c);
+    box-shadow: 0 3px 0 #8a4b00;
+    flex-shrink: 0; cursor: pointer;
+    border: none; font-family: inherit;
+  }
+  .mission button[disabled] { background: #443322; color: #886644; box-shadow: 0 3px 0 #221100; cursor: not-allowed; }
+
+  .reward-card {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px; border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,200,80,0.10), rgba(255,150,20,0.04));
+    border: 1px solid var(--border);
+    margin-bottom: 10px; gap: 10px;
+  }
+  .reward-card .l { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .reward-card .l .ic {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #ff4d6d, #b3004a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: #fff; flex-shrink: 0;
+  }
+  .reward-card .l .t { font-weight: 800; font-size: clamp(12px,3.2vw,14px); }
+  .reward-card .l .s { font-size: clamp(10px,2.6vw,11px); color: var(--muted); margin-top: 2px; }
+  .reward-card button {
+    padding: 9px 14px; border-radius: 10px;
+    font-weight: 900; font-size: clamp(11px,3vw,12px);
+    color: #2a1400;
+    background: linear-gradient(180deg, #ffd166, #ff9f1c);
+    box-shadow: 0 3px 0 #8a4b00;
+    cursor: pointer; border: none; font-family: inherit;
+    flex-shrink: 0;
+  }
+
+  /* ===== PROFILE + WALLET ===== */
+  .profile-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 18px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  .avatar-wrap { position: relative; display: inline-block; margin-bottom: 14px; }
+  .avatar-big {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd166, #ff9f1c, #d97706);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px; font-weight: 900;
+    color: #2a1400;
+    box-shadow: 0 0 30px rgba(255,180,40,0.45);
+    overflow: hidden;
+    background-size: cover; background-position: center;
+    border: 3px solid var(--gold);
+  }
+  .avatar-big img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatar-cam {
+    position: absolute; bottom: 0; right: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ffd166, #ff9f1c);
+    color: #2a1400;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; cursor: pointer;
+    border: 3px solid var(--panel);
+  }
+  .profile-name { font-size: clamp(20px, 5vw, 26px); font-weight: 900; margin-bottom: 4px; }
+  .profile-id { font-size: clamp(11px, 2.8vw, 13px); color: var(--muted); font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+  .profile-email { font-size: clamp(12px, 3vw, 14px); color: var(--gold); font-weight: 700; margin-bottom: 16px; word-break: break-all; }
+  .profile-actions { display: flex; gap: 10px; justify-content: center; }
+  .profile-actions .btn-primary { flex: 1; font-size: clamp(13px,3.4vw,15px); padding: 11px 20px; }
+  .info-strip {
+    display: flex; gap: 8px; margin-top: 16px;
+    padding-top: 16px; border-top: 1px solid var(--border);
+    justify-content: center; flex-wrap: wrap;
+  }
+  .info-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255,200,80,0.10);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: clamp(10px,2.6vw,12px);
+    font-weight: 700; color: var(--gold);
+  }
+
+  .wallet-card {
+    background: linear-gradient(135deg, rgba(255,200,80,0.14), rgba(255,150,20,0.06));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 18px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    position: relative; overflow: hidden;
+  }
+  .wallet-card::before {
+    content: ''; position: absolute; top: -50%; right: -20%;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(255,200,80,0.25), transparent 70%);
+    pointer-events: none;
+  }
+  .wallet-label {
+    font-size: clamp(10px, 2.6vw, 12px);
+    text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--muted); font-weight: 800; margin-bottom: 4px;
+  }
+  .wallet-balance {
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 900; color: var(--gold);
+    margin-bottom: 2px; letter-spacing: -0.5px;
+    position: relative; z-index: 1;
+  }
+  .wallet-sub { font-size: clamp(11px, 2.8vw, 13px); color: var(--muted); font-weight: 600; }
+  .wallet-currency-picker {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid var(--border); gap: 10px;
+  }
+  .wallet-currency-picker select {
+    background: rgba(0,0,0,0.08);
+    border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: inherit; font-size: clamp(12px,3vw,14px);
+    font-weight: 700; padding: 8px 12px;
+    outline: none; cursor: pointer; flex: 1;
+  }
+  body:not(.light) .wallet-currency-picker select { background: rgba(0,0,0,0.4); }
+  .fx-note { font-size: 10px; color: var(--muted); text-align: right; margin-top: 6px; font-style: italic; }
+
+  .wd-method-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px; margin-bottom: 14px;
+  }
+  .wd-method {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px; text-align: center;
+    cursor: pointer; transition: all 0.15s ease;
+    font-size: clamp(10px, 2.6vw, 12px);
+    font-weight: 700; color: var(--muted);
+  }
+  .wd-method .mi { font-size: 22px; display: block; margin-bottom: 4px; }
+  .wd-method.selected {
+    background: linear-gradient(180deg, #ffd166, #ff9f1c);
+    color: #2a1400; border-color: var(--gold);
+  }
+
+  .wd-field { display: block; margin-bottom: 14px; text-align: left; }
+  .wd-field > span {
+    display: block;
+    font-size: clamp(10px,2.6vw,12px);
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 6px; font-weight: 800;
+  }
+  .wd-field input, .wd-field select {
+    width: 100%;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: inherit; font-size: clamp(13px,3.4vw,15px);
+    padding: 11px 14px; outline: none;
+  }
+  body:not(.light) .wd-field input,
+  body:not(.light) .wd-field select { background: rgba(0,0,0,0.4); }
+  .wd-field input:focus, .wd-field select:focus { border-color: var(--gold); }
+  .wd-field small.err { display: block; font-size: 11px; color: var(--danger); min-height: 14px; margin-top: 4px; }
+  .wd-field small.hint { display: block; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .wd-min-warn {
+    background: rgba(255,200,80,0.10);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: clamp(11px,2.8vw,13px);
+    color: var(--muted); margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .wd-min-warn b { color: var(--gold); }
+  .wd-history {
+    max-height: 320px; overflow-y: auto;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.25);
+    padding: 8px;
+  }
+  body.light .wd-history { background: rgba(0,0,0,0.04); }
+  .wd-history .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 18px 8px; }
+  .wd-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(255,180,80,0.08);
+    gap: 10px;
+  }
+  .wd-item:last-child { border-bottom: none; }
+  .wd-item .l { min-width: 0; }
+  .wd-item .amt { color: var(--gold); font-weight: 800; font-size: 14px; }
+  .wd-item .meta { color: var(--muted); font-size: 11px; margin-top: 2px; word-break: break-all; }
+  .wd-item .status {
+    font-size: 10px; font-weight: 800;
+    padding: 3px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+  .wd-item .status.pending { background: rgba(255,200,80,0.15); color: var(--gold); }
+  .wd-item .status.processing { background: rgba(91,155,255,0.15); color: #5b9bff; }
+  .wd-item .status.paid { background: rgba(91,208,122,0.15); color: var(--ok); }
+  .wd-item .status.rejected { background: rgba(255,91,74,0.15); color: var(--danger); }
+
+  .edit-window {
+    display: none;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 18px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .edit-window.show { display: block; }
+  .edit-window h3 {
+    font-size: clamp(15px, 3.8vw, 18px);
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .edit-window h3 .close-x {
+    background: rgba(255,60,40,0.12);
+    border: 1px solid rgba(255,60,40,0.35);
+    color: var(--danger);
+    width: 30px; height: 30px;
+    border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-family: inherit; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pfield { display: block; margin-bottom: 14px; text-align: left; }
+  .pfield > span {
+    display: block;
+    font-size: clamp(10px,2.6vw,12px);
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1.2px; margin-bottom: 6px; font-weight: 800;
+  }
+  .pfield input {
+    width: 100%;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: inherit; font-size: clamp(13px,3.4vw,15px);
+    padding: 11px 14px; outline: none;
+  }
+  body:not(.light) .pfield input { background: rgba(0,0,0,0.4); }
+  .pfield input:focus { border-color: var(--gold); }
+  .pfield small.err { display: block; font-size: 11px; color: var(--danger); min-height: 14px; margin-top: 4px; }
+  .edit-actions-row { display: flex; gap: 10px; margin-top: 6px; }
+  .edit-actions-row .btn-ghost {
+    flex: 1;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit; font-weight: 800;
+    font-size: clamp(13px,3.2vw,15px);
+    padding: 11px; border-radius: 12px;
+    cursor: pointer;
+  }
+  .edit-actions-row .btn-primary { flex: 2; font-size: clamp(13px,3.4vw,15px); padding: 11px 20px; }
+
+  /* ===== LEGAL PAGES ===== */
+  .legal-view { padding-bottom: 60px; }
+  .legal-header {
+    background: linear-gradient(135deg, rgba(255,200,80,0.14), rgba(255,150,20,0.06));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 18px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .legal-header h1 {
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 900; color: var(--gold);
+    margin-bottom: 6px; letter-spacing: 0.5px;
+  }
+  .legal-header .updated {
+    font-size: clamp(10px, 2.6vw, 12px);
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .legal-header p {
+    font-size: clamp(12px,3vw,14px);
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 10px;
+  }
+  .legal-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px; margin-bottom: 12px;
+  }
+  .legal-section h2 {
+    font-size: clamp(14px, 3.6vw, 17px);
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .legal-section p, .legal-section ul, .legal-section ol {
+    font-size: clamp(12px,3vw,14px);
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 10px;
+  }
+  .legal-section ul, .legal-section ol { padding-left: 22px; }
+  .legal-section li { margin-bottom: 6px; }
+  .legal-section strong { color: var(--text); }
+  .legal-section a { color: var(--gold); text-decoration: underline; text-underline-offset: 2px; }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 520px) { .contact-grid { grid-template-columns: 1fr 1fr; } }
+  .contact-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .contact-item .ci {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ffd166, #ff9f1c);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: #2a1400;
+    flex-shrink: 0;
+  }
+  .contact-item .ct { min-width: 0; }
+  .contact-item .ct .ck {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+  }
+  .contact-item .ct .cv {
+    font-size: clamp(12px, 3vw, 14px);
+    color: var(--gold);
+    font-weight: 800;
+    word-break: break-word;
+  }
+
+  .contact-form { display: flex; flex-direction: column; gap: 12px; }
+  .contact-form label { display: block; text-align: left; }
+  .contact-form label span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .contact-form input, .contact-form textarea, .contact-form select {
+    width: 100%;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: clamp(13px,3.4vw,15px);
+    padding: 11px 14px;
+    outline: none;
+  }
+  body:not(.light) .contact-form input,
+  body:not(.light) .contact-form textarea,
+  body:not(.light) .contact-form select { background: rgba(0,0,0,0.4); }
+  .contact-form textarea { resize: vertical; min-height: 120px; }
+  .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold); }
+
+  /* ===== COOKIE BANNER ===== */
+  .cookie-banner {
+    position: fixed;
+    bottom: calc(var(--nav-h) + 8px + env(safe-area-inset-bottom, 0px));
+    left: 8px; right: 8px;
+    background: rgba(20,10,4,0.98);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+    z-index: 65;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .cookie-banner.show { display: flex; }
+  .cookie-banner p {
+    font-size: clamp(11px, 2.8vw, 13px);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .cookie-banner p a { color: var(--gold); text-decoration: underline; }
+  .cookie-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cookie-actions button {
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: clamp(11px, 2.8vw, 13px);
+    cursor: pointer;
+    border: none;
+  }
+  .cookie-actions .accept { background: linear-gradient(180deg, #ffd166, #ff9f1c); color: #2a1400; flex: 1; }
+  .cookie-actions .decline { background: transparent; border: 1px solid var(--border); color: var(--text); flex: 1; }
+  body.light .cookie-banner { background: rgba(255,250,240,0.98); }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: linear-gradient(180deg, rgba(20,10,4,0.92), rgba(20,10,4,1));
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 50;
+    box-shadow: 0 -6px 24px rgba(0,0,0,0.6);
+  }
+  .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 3px;
+    color: var(--muted);
+    font-size: clamp(10px,2.6vw,12px);
+    font-weight: 700; letter-spacing: 0.5px;
+    background: none;
+    padding: 6px 2px;
+    cursor: pointer; border: none;
+    font-family: inherit; position: relative;
+  }
+  .nav-item .ic {
+    font-size: clamp(18px, 5vw, 24px);
+    line-height: 1;
+    filter: grayscale(0.5) opacity(0.7);
+    transition: filter 0.2s ease, transform 0.2s ease;
+  }
+  .nav-item.active { color: var(--gold); }
+  .nav-item.active .ic {
+    filter: grayscale(0) opacity(1) drop-shadow(0 0 10px rgba(255,180,40,0.6));
+    transform: translateY(-2px) scale(1.08);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 36%; height: 3px;
+    background: var(--gold);
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 0 12px rgba(255,180,40,0.8);
+  }
+
+  /* ===== TOAST ===== */
+  #toast {
+    position: fixed;
+    bottom: calc(var(--nav-h) + 20px + env(safe-area-inset-bottom, 0px));
+    left: 50%; transform: translateX(-50%) translateY(20px);
+    background: rgba(30,18,8,0.98);
+    color: var(--gold);
+    padding: 12px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-size: clamp(12px,3vw,14px);
+    font-weight: 700; opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 70;
+    box-shadow: var(--shadow);
+    max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ===== LIGHT MODE ===== */
+  body.light {
+    --bg: #f5efe4; --bg-2: #ebe2d0; --panel: #ffffff; --panel-2: #faf5ea;
+    --border: rgba(120,80,20,0.22);
+    --gold: #b8841a; --gold-2: #d99a26;
+    --text: #2a1e10; --muted: #7a6a56;
+    --danger: #d63c2a; --ok: #2a9d4a;
+    --shadow: 0 6px 24px rgba(120,80,20,0.15);
+  }
+  body.light .topbar { background: linear-gradient(180deg, rgba(255,250,240,0.98), rgba(255,250,240,0.88)); }
+  body.light .bottom-nav {
+    background: linear-gradient(180deg, rgba(255,250,240,0.94), rgba(255,250,240,1));
+  }
+  body.light .logo { text-shadow: 0 0 10px rgba(184,132,26,0.25); }
+  body.light .hero h1 { text-shadow: 0 0 20px rgba(184,132,26,0.30), 0 5px 0 #e6d4a0; }
+  body.light .hero {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(255,200,110,0.35), transparent 60%),
+      linear-gradient(180deg, #fffaf0, #f5efe4);
+  }
+  body.light .hero p { color: #5a4a36; }
+  body.light .overlay {
+    background: radial-gradient(circle at 50% 45%, rgba(255,230,180,0.55), rgba(255,250,240,0.92));
+  }
+  body.light .overlay h1 { color: var(--gold); text-shadow: 0 3px 0 #e6d4a0; }
+  body.light .overlay p { color: #5a4a36; }
+  body.light .overlay.gameover { background: rgba(255,240,235,0.92); }
+  body.light .overlay.gameover h1 { color: var(--danger); }
+  body.light .btn-primary {
+    background: linear-gradient(180deg, #e8b03c, #b8841a);
+    box-shadow: 0 6px 0 #6b4a00, 0 12px 28px rgba(184,132,26,0.35);
+    color: #fffaf0;
+  }
+  body.light .modal { background: rgba(255,250,240,0.92); }
+  body.light #miniCanvas { background: #f5efe4; }
+  body.light .day { background: #f5efe4; }
+  body.light .survey-card { background: #faf5ea; }
+  body.light .stat, body.light .card, body.light .profile-card,
+  body.light .legal-section, body.light .contact-item { background: #fff; }
+  body.light #toast { background: rgba(255,250,240,0.98); color: var(--gold); }
+  body.light .mg-card { background: linear-gradient(160deg, #faf5ea, #fff); }
+  body.light .wd-method { background: #faf5ea; }
+  body.light .wd-history { background: rgba(0,0,0,0.03); }
+  body.light .balance-chip {
+    background: linear-gradient(180deg, rgba(184,132,26,0.18), rgba(184,132,26,0.08));
+    border-color: rgba(184,132,26,0.4);
+  }
+</style>
+</head>
+<body class="light">
+
+<!-- ===== TOP BAR ===== -->
+<header class="topbar">
+  <div class="logo"><span class="brand-mark">💵</span> DollarTube</div>
+  <div class="topbar-right">
+    <button class="balance-chip" id="topBalanceBtn" title="Your balance">
+      <span id="topBalance">$0.00</span>
+      <span class="cur-code" id="topCurCode">USD</span>
+    </button>
+    <button class="menu-btn" id="menuBtn" title="Menu">☰</button>
+    <button class="theme-btn" id="themeToggle" title="Toggle theme">☀️</button>
+  </div>
+</header>
+
+<!-- ===== HOME VIEW ===== -->
+<section class="view active" id="viewHome">
+  <div class="view-inner">
+    <div class="hero">
+      <h1>DOLLARTUBE</h1>
+      <p>Play. Complete surveys. Watch videos. Cash out real money.</p>
+      <button class="btn-primary" id="playFromHome">▶ PLAY NOW</button>
+    </div>
+    <div class="stats-grid">
+      <div class="stat"><span class="v" id="homeBest">0</span><span class="l">Best Score</span></div>
+      <div class="stat"><span class="v" id="homeRuns">0</span><span class="l">Total Runs</span></div>
+      <div class="stat"><span class="v" id="homeDist">0</span><span class="l">Distance (m)</span></div>
+    </div>
+    <div class="card">
+      <h3>🎮 How to Play</h3>
+      <ul>
+        <li><b>A / D</b> or <b>← →</b> — switch lanes</li>
+        <li><b>W / ↑ / Space</b> — jump over logs and monkeys</li>
+        <li><b>S / ↓</b> — slide under branches</li>
+        <li>Every <b>100m</b> earns you <b>$0.01 USD</b></li>
+        <li>Complete <b>surveys</b> in the Earn tab for up to $1.00 each</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>🐒 Monkey Chasers</h3>
+      <p>Monkeys will chase you on the track. If you stumble on an obstacle, they close in fast. Reach a gap, jump a log, or slide under a branch to escape — but get caught twice and the run ends.</p>
+    </div>
+    <div class="card">
+      <h3>💸 How Payouts Work</h3>
+      <p>Your balance accrues from gameplay, surveys, videos, and bonuses. Once you reach the <b>$5.00 minimum</b>, you can withdraw via PayPal, Bank Transfer, UPI, Wise, or Payoneer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PLAY VIEW ===== -->
+<section class="view" id="viewPlay">
+  <div class="view-inner">
+    <div class="section-title">🎮 PLAY</div>
+    <div class="section-sub">Run the temple or hop into a mini game.</div>
+    <div id="gameFrame">
+      <canvas id="game"></canvas>
+      <div id="hud">
+        <div class="hud-tl" id="scoreBox">Score: 0<br>Dist: 0m</div>
+        <div class="hud-tc" id="bestBox">Best: 0</div>
+        <div class="hud-tr" id="moneyBox">Earned: $0.00</div>
+        <div class="hud-bl" id="relicSlots">
+          <span data-r="time">[TIME --]</span>
+          <span data-r="grav">[GRAV --]</span>
+          <span data-r="fire">[FIRE --]</span>
+          <span data-r="fort">[FORT --]</span>
+        </div>
+      </div>
+      <div id="flash"></div>
+      <div class="overlay" id="menuOverlay">
+        <h1>MONKEY RUN</h1>
+        <p>Tap RUN to begin your escape</p>
+        <button class="btn-primary" id="runBtn">▶ RUN</button>
+      </div>
+      <div class="overlay gameover hidden" id="overOverlay">
+        <h1>GAME OVER</h1>
+        <p id="overStats"></p>
+      </div>
+    </div>
+    <div class="play-hint">Swipe / A·D·← → — Move &nbsp;•&nbsp; W·↑·Space — Jump &nbsp;•&nbsp; S·↓ — Slide</div>
+    <div class="section-title" style="font-size:clamp(16px,4.4vw,20px); margin-top:8px;">🕹 MINI GAMES</div>
+    <div class="section-sub">Tap a card to launch. Close to return.</div>
+    <div class="minigame-grid" id="minigameGrid"></div>
+  </div>
+</section>
+
+<!-- ===== EARN VIEW ===== -->
+<section class="view" id="viewEarn">
+  <div class="view-inner">
+    <div class="section-title">💰 EARN MONEY</div>
+    <div class="section-sub">Surveys, daily rewards, and bonus cash.</div>
+
+    <div class="card">
+      <h3>📋 Available Surveys</h3>
+      <div class="section-sub" style="margin-bottom:12px;">
+        Complete surveys and earn up to <b id="surveyMaxLabel">$1.00</b> each. Rewards credited instantly.
+      </div>
+      <div id="surveyList"></div>
+    </div>
+
+    <div class="card">
+      <h3>📅 Daily Login Streak</h3>
+      <div class="daily-row" id="dailyRow"></div>
+      <button class="btn-primary" id="claimDailyBtn" style="width:100%; font-size:15px; padding:12px;">Claim Today's Reward</button>
+    </div>
+
+    <div class="card">
+      <h3>🎯 Active Missions</h3>
+      <div id="missionsBox"></div>
+    </div>
+
+    <div class="card">
+      <h3>🎁 Bonus Rewards</h3>
+      <div class="reward-card">
+        <div class="l">
+          <div class="ic">▶</div>
+          <div>
+            <div class="t">Watch Ad for $0.25</div>
+            <div class="s">Resets every 30 minutes</div>
+          </div>
+        </div>
+        <button id="watchAdBtn">WATCH</button>
+      </div>
+      <div class="reward-card">
+        <div class="l">
+          <div class="ic">🎰</div>
+          <div>
+            <div class="t">Free Daily Spin</div>
+            <div class="s">Win $0.05 – $1.00</div>
+          </div>
+        </div>
+        <button id="spinBtn">SPIN</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROFILE VIEW ===== -->
+<section class="view" id="viewProfile">
+  <div class="view-inner">
+    <div class="section-title">👤 PROFILE</div>
+    <div class="section-sub">Manage your account, wallet, and withdrawals.</div>
+
+    <div class="profile-card">
+      <div class="avatar-wrap">
+        <div class="avatar-big" id="profileAvatar"><span id="avatarInitials">R</span></div>
+        <label class="avatar-cam" for="avatarFile" title="Change photo">📷</label>
+        <input type="file" id="avatarFile" accept="image/*" hidden />
+      </div>
+      <div class="profile-name" id="displayName">Runner</div>
+      <div class="profile-id" id="displayId">ID: DT-0000</div>
+      <div class="profile-email" id="displayEmail">runner@gmail.com</div>
+      <div class="profile-actions">
+        <button class="btn-primary" id="editProfileBtn">✏️ Edit Profile</button>
+      </div>
+      <div class="info-strip">
+        <span class="info-pill">🏆 <span id="infoBest">0</span> Best</span>
+        <span class="info-pill">🎮 <span id="infoRuns">0</span> Runs</span>
+        <span class="info-pill">💵 <span id="infoBalance">$0.00</span></span>
+      </div>
+    </div>
+
+    <div class="edit-window" id="editWindow">
+      <h3><span>✏️ Edit Profile</span><button class="close-x" id="closeEdit">✕</button></h3>
+      <label class="pfield"><span>Full Name</span><input type="text" id="inputName" maxlength="40" /><small class="err" id="errName"></small></label>
+      <label class="pfield"><span>User ID</span><input type="text" id="inputId" maxlength="20" /><small class="err" id="errId"></small></label>
+      <label class="pfield"><span>Gmail Address</span><input type="email" id="inputEmail" /><small class="err" id="errEmail"></small></label>
+      <div class="edit-actions-row">
+        <button class="btn-ghost" id="cancelEdit">Cancel</button>
+        <button class="btn-primary" id="saveProfile">💾 Save</button>
+      </div>
+    </div>
+
+    <div class="wallet-card">
+      <div class="wallet-label">💵 Your Balance</div>
+      <div class="wallet-balance" id="walletBalance">$0.00</div>
+      <div class="wallet-sub" id="walletSub">Ready to withdraw</div>
+      <div class="wallet-currency-picker">
+        <span style="font-size:12px; color:var(--muted); font-weight:700;">Currency</span>
+        <select id="currencySelect">
+          <option value="USD">🇺🇸 USD — US Dollar</option>
+          <option value="INR">🇮🇳 INR — Indian Rupee</option>
+          <option value="EUR">🇪🇺 EUR — Euro</option>
+          <option value="GBP">🇬🇧 GBP — British Pound</option>
+          <option value="JPY">🇯🇵 JPY — Japanese Yen</option>
+          <option value="AUD">🇦🇺 AUD — Australian Dollar</option>
+          <option value="CAD">🇨🇦 CAD — Canadian Dollar</option>
+          <option value="BRL">🇧🇷 BRL — Brazilian Real</option>
+          <option value="AED">🇦🇪 AED — UAE Dirham</option>
+          <option value="NGN">🇳🇬 NGN — Nigerian Naira</option>
+        </select>
+      </div>
+      <div class="fx-note" id="fxNote">Rates: 1 USD = 1.00 USD</div>
+    </div>
+
+    <div class="card">
+      <h3>💸 Withdraw Funds</h3>
+      <div class="wd-min-warn">
+        <span>ℹ️</span>
+        <div>Minimum withdrawal is <b id="minWdLabel">$5.00 USD</b>. Your balance is <b id="minWdBalance">$0.00</b>.</div>
+      </div>
+      <div style="font-size:clamp(11px,2.8vw,13px); color:var(--muted); margin-bottom:10px; font-weight:700;">Select Payout Method</div>
+      <div class="wd-method-grid" id="wdMethodGrid">
+        <div class="wd-method selected" data-method="paypal"><span class="mi">🅿️</span>PayPal</div>
+        <div class="wd-method" data-method="bank"><span class="mi">🏦</span>Bank</div>
+        <div class="wd-method" data-method="upi"><span class="mi">📱</span>UPI</div>
+        <div class="wd-method" data-method="wise"><span class="mi">🌍</span>Wise</div>
+        <div class="wd-method" data-method="payoneer"><span class="mi">💳</span>Payoneer</div>
+      </div>
+      <label class="wd-field">
+        <span id="wdAccountLabel">PayPal Email</span>
+        <input type="text" id="wdAccount" placeholder="you@example.com" autocomplete="off" />
+        <small class="err" id="errAccount"></small>
+        <small class="hint" id="wdAccountHint">Money will be sent to this email</small>
+      </label>
+      <label class="wd-field">
+        <span>Amount (<span id="wdCurLabel">USD</span>)</span>
+        <input type="number" id="wdAmount" placeholder="5.00" min="5" step="0.01" />
+        <small class="err" id="errAmount"></small>
+        <small class="hint" id="wdAmountHint">Minimum: $5.00 USD · Available: $0.00</small>
+      </label>
+      <button class="btn-primary" id="wdSubmit" style="width:100%; font-size:15px; padding:13px;">🚀 Request Withdrawal</button>
+
+      <h4 style="font-size:clamp(13px,3.2vw,15px); color:var(--gold); margin: 18px 0 8px;">📜 Withdrawal History</h4>
+      <div class="wd-history" id="wdHistory"><div class="empty">No withdrawals yet.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT US ===== -->
+<section class="view legal-view" id="viewAbout">
+  <div class="view-inner">
+    <div class="legal-header">
+      <h1>About Us</h1>
+      <div class="updated">Last updated: 12 September 2026</div>
+      <p>Learn who we are and why we built DollarTube.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>🎯 Our Mission</h2>
+      <p><strong>DollarTube</strong> is a free-to-play reward platform that lets anyone earn real money by playing casual games, completing surveys, watching sponsored videos, and hitting daily goals. We believe micro-earning should be fun, transparent, and accessible on any device — no app store downloads required.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>💡 What We Do</h2>
+      <ul>
+        <li>Provide browser-based games that run on phones, tablets, and desktops</li>
+        <li>Partner with survey aggregators and ad networks to fund user rewards</li>
+        <li>Convert points and gameplay milestones into real cash balances</li>
+        <li>Enable withdrawals to PayPal, bank accounts, UPI, Wise, and Payoneer once users reach the $5.00 minimum</li>
+        <li>Publish regular content and updates for players to enjoy</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>🌍 Who We Serve</h2>
+      <p>DollarTube is available worldwide to users aged 18 and over. Whether you're in the United States, India, Europe, Brazil, Nigeria, or anywhere else, you can play and earn. Payout methods vary by country to give you the fastest, cheapest option available where you live.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>🛡 Our Commitment</h2>
+      <ul>
+        <li><strong>Transparency</strong> — clear earning rates, no hidden fees, and stated payout minimums</li>
+        <li><strong>Fairness</strong> — anti-fraud systems keep the playing field level for everyone</li>
+        <li><strong>Privacy</strong> — we only collect what we need to operate and pay you (see our <a href="#" data-nav="viewPrivacy">Privacy Policy</a>)</li>
+        <li><strong>Support</strong> — real humans answer support emails within 48 hours</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>🏢 Company Information</h2>
+      <p>
+        <strong>DollarTube</strong><br />
+        Operated by: DollarTube Media<br />
+        Registered office: 123 Rewards Avenue, Suite 400<br />
+        Support email: <a href="mailto:support@dollartube.example">support@dollartube.example</a><br />
+        Business inquiries: <a href="mailto:business@dollartube.example">business@dollartube.example</a>
+      </p>
+      <p style="font-size:12px; color:var(--muted); font-style:italic;">Note: replace the address and email above with your real registered details before going live.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONTACT US ===== -->
+<section class="view legal-view" id="viewContact">
+  <div class="view-inner">
+    <div class="legal-header">
+      <h1>Contact Us</h1>
+      <div class="updated">We reply within 48 hours</div>
+      <p>Questions, bug reports, payout issues, or business inquiries — reach us any way you like.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>📮 Direct Contacts</h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <div class="ci">📧</div>
+          <div class="ct"><div class="ck">General Support</div><div class="cv">support@dollartube.example</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci">💼</div>
+          <div class="ct"><div class="ck">Business &amp; Ads</div><div class="cv">business@dollartube.example</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci">🔒</div>
+          <div class="ct"><div class="ck">Privacy / GDPR</div><div class="cv">privacy@dollartube.example</div></div>
+        </div>
+        <div class="contact-item">
+          <div class="ci">💸</div>
+          <div class="ct"><div class="ck">Payout Issues</div><div class="cv">payouts@dollartube.example</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legal-section">
+      <h2>✍️ Send Us a Message</h2>
+      <form class="contact-form" id="contactForm" onsubmit="return false;">
+        <label><span>Your Name</span><input type="text" id="cfName" placeholder="Jane Doe" maxlength="60" /></label>
+        <label><span>Your Email</span><input type="email" id="cfEmail" placeholder="jane@example.com" /></label>
+        <label>
+          <span>Topic</span>
+          <select id="cfTopic">
+            <option>General Question</option>
+            <option>Payout / Withdrawal Issue</option>
+            <option>Bug Report</option>
+            <option>Business Inquiry</option>
+            <option>Privacy Request</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label><span>Message</span><textarea id="cfMessage" placeholder="Type your message here…" maxlength="1000"></textarea></label>
+        <button class="btn-primary" id="cfSubmit" style="width:100%; font-size:15px; padding:13px;">📨 Send Message</button>
+      </form>
+    </div>
+
+    <div class="legal-section">
+      <h2>🏢 Mailing Address</h2>
+      <p>
+        DollarTube Media<br />
+        123 Rewards Avenue, Suite 400<br />
+        Support Hours: Monday – Friday, 9:00–18:00 UTC
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRIVACY POLICY ===== -->
+<section class="view legal-view" id="viewPrivacy">
+  <div class="view-inner">
+    <div class="legal-header">
+      <h1>Privacy Policy</h1>
+      <div class="updated">Last updated: 12 September 2026</div>
+      <p>This Privacy Policy explains what data DollarTube collects, how we use it, and your rights.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>1. Introduction</h2>
+      <p>DollarTube ("we", "our", "us") operates the website and services available at dollartube.example (the "Service"). This Privacy Policy applies to all visitors, users, and others who access the Service. By using DollarTube you agree to the collection and use of information in accordance with this policy.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Information We Collect</h2>
+      <h4>2.1 Information you provide</h4>
+      <ul>
+        <li>Name and user ID you enter in your profile</li>
+        <li>Email address (for payouts and account recovery)</li>
+        <li>Profile photo (optional, stored locally on your device)</li>
+        <li>Payout details you submit when requesting a withdrawal (PayPal email, UPI ID, bank account, Wise or Payoneer details)</li>
+        <li>Messages you send through our Contact form</li>
+      </ul>
+      <h4>2.2 Information collected automatically</h4>
+      <ul>
+        <li>Device type, browser type, and operating system</li>
+        <li>IP address (used for fraud prevention and geo-currency selection)</li>
+        <li>Pages viewed, buttons clicked, and time spent on the Service</li>
+        <li>Cookies and similar technologies (see our <a href="#" data-nav="viewCookies">Cookies Policy</a>)</li>
+      </ul>
+      <h4>2.3 Information from third parties</h4>
+      <ul>
+        <li>Survey completion data from our survey partners</li>
+        <li>Ad interaction data from our advertising partners (including Google AdSense and other ad networks)</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. How We Use Your Information</h2>
+      <ul>
+        <li>To operate, maintain, and improve the Service</li>
+        <li>To credit your account with earned rewards</li>
+        <li>To process your withdrawal requests and comply with financial regulations</li>
+        <li>To detect, prevent, and address fraud, abuse, or security issues</li>
+        <li>To send you service-related notices (e.g. payout confirmations)</li>
+        <li>To display personalized advertising, when you consent to it</li>
+        <li>To comply with legal obligations, including tax reporting</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. Third-Party Advertising — Google AdSense</h2>
+      <p>We participate in the <strong>Google AdSense</strong> program and may also use other advertising networks. These third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website and other websites.</p>
+      <ul>
+        <li>Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this and other sites</li>
+        <li>You may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google Ads Settings</a></li>
+        <li>You can also opt out of third-party vendor cookies for personalized advertising at <a href="https://www.aboutads.info/" target="_blank" rel="noopener">www.aboutads.info</a></li>
+        <li>Google's advertising partners may collect data as described in Google's own privacy policy: <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">How Google uses data</a></li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. Cookies &amp; Similar Technologies</h2>
+      <p>We use cookies and local storage to keep you signed in, remember your preferences (like currency and theme), prevent fraud, and measure site performance. Full details are in our <a href="#" data-nav="viewCookies">Cookies Policy</a>. You can control cookies through your browser settings and via our cookie consent banner.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Sharing Your Information</h2>
+      <p>We do not sell your personal information. We may share data with:</p>
+      <ul>
+        <li><strong>Payment providers</strong> (PayPal, Wise, Payoneer, banks) — to send your payouts</li>
+        <li><strong>Survey partners</strong> (e.g. Pollfish, BitLabs, CPX Research) — to validate survey completions</li>
+        <li><strong>Advertising partners</strong> (e.g. Google AdSense) — to serve relevant ads</li>
+        <li><strong>Analytics providers</strong> — to understand how the site is used</li>
+        <li><strong>Legal authorities</strong> — when required by law or to protect rights, safety, and property</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Data Retention</h2>
+      <p>We retain your account data for as long as your account is active and for up to 3 years after your last activity, or longer if required by law. You may request deletion of your account at any time by contacting <a href="mailto:privacy@dollartube.example">privacy@dollartube.example</a>.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>8. Your Rights</h2>
+      <p>Depending on where you live, you may have the right to access, correct, delete, restrict, or port your data; opt out of personalized advertising; and withdraw cookie consent. Email <a href="mailto:privacy@dollartube.example">privacy@dollartube.example</a> to exercise these rights. We respond within 30 days.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>9. GDPR (EU/UK Users)</h2>
+      <p>If you are located in the European Economic Area or the United Kingdom, we process your data under the lawful bases of (a) performance of a contract — to provide the Service and pay you; (b) legitimate interests — to prevent fraud and improve the Service; and (c) consent — for personalized advertising and non-essential cookies.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>10. CCPA (California Users)</h2>
+      <p>California residents have the right to know what personal information is collected, to request deletion, and to opt out of the "sale" of personal information (we do not sell personal information). Contact <a href="mailto:privacy@dollartube.example">privacy@dollartube.example</a>.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>11. Children's Privacy</h2>
+      <p>DollarTube is not intended for anyone under 18. We do not knowingly collect personal information from children.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>12. Security</h2>
+      <p>We use industry-standard safeguards — including HTTPS, hashed credentials, and fraud monitoring — to protect your data.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>13. International Transfers</h2>
+      <p>Your information may be transferred to and processed in countries other than your own, including the United States. When we transfer data outside the EEA/UK, we use Standard Contractual Clauses or equivalent safeguards.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>14. Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. When we do, we will revise the "Last updated" date at the top of this page.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>15. Contact Us</h2>
+      <p>Questions about this Privacy Policy? Contact us at <a href="mailto:privacy@dollartube.example">privacy@dollartube.example</a> or via our <a href="#" data-nav="viewContact">Contact Us</a> page.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DISCLAIMER ===== -->
+<section class="view legal-view" id="viewDisclaimer">
+  <div class="view-inner">
+    <div class="legal-header">
+      <h1>Disclaimer</h1>
+      <div class="updated">Last updated: 12 September 2026</div>
+      <p>Important information about how DollarTube operates and what you can expect.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>1. General Disclaimer</h2>
+      <p>The information and services on DollarTube are provided on an "as is" and "as available" basis. DollarTube makes no warranties, express or implied, regarding the availability, accuracy, or reliability of the Service or any rewards.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Earnings Disclaimer</h2>
+      <p>Earnings on DollarTube depend entirely on your activity. <strong>We do not guarantee any specific level of income.</strong> Survey availability varies by country, demographics, and supply from survey providers.</p>
+      <ul>
+        <li>Typical active users earn between $1 and $10 per month</li>
+        <li>Earnings may be zero if you don't engage with the Service</li>
+        <li>Any "up to" figures are maximums, not averages</li>
+        <li>The minimum withdrawal is $5.00 USD (or its equivalent)</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. No Investment Advice</h2>
+      <p>DollarTube is a rewards platform, not an investment or financial service. Nothing on the site constitutes financial, tax, legal, or investment advice.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. Third-Party Content &amp; Ads</h2>
+      <p>DollarTube displays advertisements from third-party networks including Google AdSense, and offers surveys hosted by third-party providers. We do not control, endorse, or guarantee the content, accuracy, or safety of third-party ads, surveys, or linked websites.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. Payout Process</h2>
+      <p>Withdrawal requests are processed through the payment providers you select (PayPal, Wise, Payoneer, banks, UPI, etc.). Processing times depend on the provider and can range from a few hours to 7 business days.</p>
+      <ul>
+        <li>Verify your identity before processing large payouts (KYC/AML)</li>
+        <li>Reverse or reject payouts we suspect are fraudulent</li>
+        <li>Adjust balances if we detect cheating, botting, or abuse</li>
+        <li>Change minimum payout thresholds with advance notice</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Eligibility</h2>
+      <p>You must be at least 18 years old to earn and withdraw money on DollarTube. Some countries and regions are restricted due to sanctions, payment restrictions, or legal requirements.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Taxes</h2>
+      <p>You are solely responsible for any taxes owed on rewards you earn through DollarTube in your jurisdiction.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>8. Fraud &amp; Abuse</h2>
+      <p>Using bots, VPNs to fake location, multiple accounts, or exploiting bugs to gain rewards is strictly prohibited and will result in immediate account termination and forfeiture of balance.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>9. Limitation of Liability</h2>
+      <p>To the fullest extent permitted by law, DollarTube and its affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the Service.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>10. Changes to Service</h2>
+      <p>We may modify, suspend, or discontinue any part of the Service — including games, survey offers, and rewards — at any time without notice.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>11. Governing Law</h2>
+      <p>This Disclaimer is governed by the laws of the jurisdiction in which DollarTube Media is registered.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>12. Contact</h2>
+      <p>Questions about this Disclaimer? Email <a href="mailto:support@dollartube.example">support@dollartube.example</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COOKIES POLICY ===== -->
+<section class="view legal-view" id="viewCookies">
+  <div class="view-inner">
+    <div class="legal-header">
+      <h1>Cookies Policy</h1>
+      <div class="updated">Last updated: 12 September 2026</div>
+      <p>How and why DollarTube uses cookies, and how you can control them.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>1. What Are Cookies?</h2>
+      <p>Cookies are small text files placed on your device when you visit a website. They help websites remember your preferences, keep you signed in, and understand how you use the site. We also use <strong>local storage</strong> and similar technologies.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>2. Types of Cookies We Use</h2>
+      <h4>2.1 Strictly necessary cookies</h4>
+      <ul>
+        <li>Keep you signed in and maintain your session</li>
+        <li>Remember your currency, theme, and wallet balance locally</li>
+        <li>Protect against fraud and abuse</li>
+      </ul>
+      <p><em>These cannot be disabled, as the Service will not function without them.</em></p>
+
+      <h4>2.2 Performance &amp; analytics cookies</h4>
+      <ul>
+        <li>Measure page loads, errors, and general traffic patterns</li>
+        <li>Help us improve speed and fix bugs</li>
+      </ul>
+
+      <h4>2.3 Functional cookies</h4>
+      <ul>
+        <li>Remember your language and layout preferences</li>
+        <li>Store your recent activity for quicker access</li>
+      </ul>
+
+      <h4>2.4 Advertising cookies (Google AdSense and partners)</h4>
+      <ul>
+        <li>Display ads that may be more relevant to you</li>
+        <li>Limit the number of times you see the same ad</li>
+        <li>Measure the effectiveness of advertising campaigns</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>3. Third-Party Cookies</h2>
+      <ul>
+        <li><strong>Google AdSense</strong> — <a href="https://policies.google.com/technologies/cookies" target="_blank" rel="noopener">Google Cookies Policy</a></li>
+        <li><strong>Google Analytics</strong> — anonymous site usage statistics</li>
+        <li><strong>Survey providers</strong> (Pollfish, BitLabs, CPX Research) — validate survey completions</li>
+        <li><strong>Payment providers</strong> (PayPal, Wise) — only when you initiate a payout</li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>4. How to Control Cookies</h2>
+      <h4>4.1 In-app controls</h4>
+      <p>When you first visit DollarTube you'll see a cookie consent banner. You can accept or decline non-essential cookies. You can reopen the banner from the menu (☰ → Reset Cookie Preference).</p>
+
+      <h4>4.2 Browser controls</h4>
+      <ul>
+        <li><strong>Chrome:</strong> Settings → Privacy and security → Cookies</li>
+        <li><strong>Firefox:</strong> Options → Privacy &amp; Security → Cookies and Site Data</li>
+        <li><strong>Safari:</strong> Preferences → Privacy → Manage Website Data</li>
+        <li><strong>Edge:</strong> Settings → Cookies and site permissions</li>
+      </ul>
+
+      <h4>4.3 Opt out of personalized advertising</h4>
+      <ul>
+        <li>Google Ads Settings: <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">google.com/settings/ads</a></li>
+        <li>Digital Advertising Alliance: <a href="https://www.aboutads.info/" target="_blank" rel="noopener">aboutads.info</a></li>
+        <li>Network Advertising Initiative: <a href="https://optout.networkadvertising.org/" target="_blank" rel="noopener">optout.networkadvertising.org</a></li>
+      </ul>
+    </div>
+
+    <div class="legal-section">
+      <h2>5. Do Not Track</h2>
+      <p>Some browsers send a "Do Not Track" (DNT) signal. There is currently no industry standard for how to respond.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>6. Changes to This Policy</h2>
+      <p>We may update this Cookies Policy as our technology and practices change.</p>
+    </div>
+
+    <div class="legal-section">
+      <h2>7. Contact</h2>
+      <p>Questions about cookies? Email <a href="mailto:privacy@dollartube.example">privacy@dollartube.example</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MINI GAME MODAL ===== -->
+<div class="modal" id="miniModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="miniTitle">Mini Game</h3>
+      <button class="modal-close" id="miniClose">✕ CLOSE</button>
+    </div>
+    <canvas id="miniCanvas" width="480" height="480"></canvas>
+    <div class="mini-info">
+      <span>Score: <b id="miniScore">0</b></span>
+      <span>Best: <b id="miniBest">0</b></span>
+    </div>
+    <div class="mini-msg" id="miniMsg">Tap / click to start</div>
+  </div>
+</div>
+
+<!-- ===== COOKIE BANNER ===== -->
+<div class="cookie-banner" id="cookieBanner">
+  <p>🍪 We use cookies to operate DollarTube, remember your preferences, and show relevant ads. Read our <a href="#" data-nav="viewCookies">Cookies Policy</a> and <a href="#" data-nav="viewPrivacy">Privacy Policy</a>.</p>
+  <div class="cookie-actions">
+    <button class="decline" id="cookieDecline">Decline</button>
+    <button class="accept" id="cookieAccept">Accept All</button>
+  </div>
+</div>
+
+<!-- ===== MENU DRAWER ===== -->
+<div class="menu-overlay" id="menuOverlay"></div>
+<aside class="menu-drawer" id="menuDrawer" aria-label="Site menu">
+  <div class="menu-header">
+    <h2>💵 DollarTube</h2>
+    <button class="menu-close" id="menuClose" aria-label="Close menu">✕</button>
+  </div>
+
+  <div class="menu-section-title">Account</div>
+  <ul class="menu-list">
+    <li>
+      <button class="menu-item" data-target="viewHome">
+        <span class="mi">🏠</span>
+        <span class="mt">Home</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" data-target="viewProfile">
+        <span class="mi">👤</span>
+        <span class="mt">My Profile</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" data-target="viewProfile">
+        <span class="mi">💸</span>
+        <span class="mt">Withdraw Funds<div class="ms">Minimum $5.00</div></span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+  </ul>
+
+  <div class="menu-section-title">Legal</div>
+  <ul class="menu-list">
+    <li>
+      <button class="menu-item" data-target="viewAbout">
+        <span class="mi">ℹ️</span>
+        <span class="mt">About Us</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" data-target="viewContact">
+        <span class="mi">📮</span>
+        <span class="mt">Contact Us</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" data-target="viewPrivacy">
+        <span class="mi">🔒</span>
+        <span class="mt">Privacy Policy</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" data-target="viewDisclaimer">
+        <span class="mi">⚠️</span>
+        <span class="mt">Disclaimer</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+    <li>
+      <button class="menu-item" data-target="viewCookies">
+        <span class="mi">🍪</span>
+        <span class="mt">Cookies Policy</span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+  </ul>
+
+  <div class="menu-section-title">Preferences</div>
+  <ul class="menu-list">
+    <li>
+      <button class="menu-item" id="menuResetCookies">
+        <span class="mi">🔄</span>
+        <span class="mt">Reset Cookie Preference<div class="ms">Show the consent banner again</div></span>
+        <span class="arrow">›</span>
+      </button>
+    </li>
+  </ul>
+
+  <div class="menu-footer">
+    <div class="brand">DOLLARTUBE</div>
+    <div>Play. Earn. Cash out.</div>
+    <div style="margin-top:6px;opacity:0.7;">© 2026 DollarTube Media</div>
+  </div>
+</aside>
+
+<!-- ===== BOTTOM NAV ===== -->
+<nav class="bottom-nav">
+  <button class="nav-item active" data-view="viewHome"><span class="ic">🏠</span><span>Home</span></button>
+  <button class="nav-item" data-view="viewPlay"><span class="ic">🎮</span><span>Play</span></button>
+  <button class="nav-item" data-view="viewEarn"><span class="ic">💰</span><span>Earn</span></button>
+  <button class="nav-item" data-view="viewProfile"><span class="ic">👤</span><span>Profile</span></button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+
+const PAYOUT_API_URL = '';
+const USD_PER_100M = 0.01;
+const MIN_WITHDRAW_USD = 5.00;
+const FALLBACK_RATES = {USD:1, INR:83.25, EUR:0.92, GBP:0.79, JPY:149.5, AUD:1.52, CAD:1.36, BRL:5.05, AED:3.67, NGN:1550};
+const CURRENCIES = {USD:{sym:'$',dec:2}, INR:{sym:'₹',dec:2}, EUR:{sym:'€',dec:2}, GBP:{sym:'£',dec:2}, JPY:{sym:'¥',dec:0}, AUD:{sym:'A$',dec:2}, CAD:{sym:'C$',dec:2}, BRL:{sym:'R$',dec:2}, AED:{sym:'د.إ',dec:2}, NGN:{sym:'₦',dec:2}};
+const METHOD_META = {
+  paypal:{label:'PayPal Email',placeholder:'you@example.com',hint:'Money will be sent to this email',validate:v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)},
+  bank:{label:'Account No / IBAN',placeholder:'XXXXXXXXXXXX',hint:'Include routing/IFSC if required',validate:v=>v.length>=6},
+  upi:{label:'UPI ID',placeholder:'yourname@upi',hint:'Format: name@bank',validate:v=>/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(v)},
+  wise:{label:'Wise Email / Tag',placeholder:'you@example.com',hint:'Wise account email or $tag',validate:v=>v.length>=5},
+  payoneer:{label:'Payoneer Email / ID',placeholder:'you@example.com',hint:'Payoneer account email or ID',validate:v=>v.length>=5}
+};
+
+const Store = {
+  data: {
+    best:0, balanceUSD:0, runs:0, totalDist:0,
+    dailyStreak:0, lastDailyClaim:0,
+    lastAdWatch:0, lastSpin:0,
+    miniWins:0, miniBest:{},
+    theme:'light',
+    currency:'USD',
+    withdrawals:[],
+    surveys:{},
+    cookieConsent: null,
+    profile:null
+  },
+  load() { try { const r = localStorage.getItem('dt_save_v2'); if (r) this.data = Object.assign(this.data, JSON.parse(r)); } catch(e){} },
+  save() { try { localStorage.setItem('dt_save_v2', JSON.stringify(this.data)); } catch(e){} }
+};
+Store.load();
+
+if (!Store.data.profile) {
+  Store.data.profile = { name:'Runner', id:'DT-' + Math.floor(1000+Math.random()*9000), email:'runner@gmail.com', avatar:'' };
+  Store.save();
+}
+
+const $ = id => document.getElementById(id);
+let _toastTimer = null;
+function toast(msg, ms=2000) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+let FX = Object.assign({}, FALLBACK_RATES);
+let fxUpdatedAt = null;
+
+async function fetchLiveRates() {
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', {cache:'no-store'});
+    if (!res.ok) throw 0;
+    const j = await res.json();
+    if (j && j.rates) {
+      Object.keys(CURRENCIES).forEach(c => { if (typeof j.rates[c] === 'number') FX[c] = j.rates[c]; });
+      FX.USD = 1; fxUpdatedAt = new Date();
+    }
+  } catch(e) {}
+  renderFxNote();
+}
+
+function fmtMoney(usd, code) {
+  const c = code || Store.data.currency;
+  const m = CURRENCIES[c] || CURRENCIES.USD;
+  const local = usd * (FX[c] || 1);
+  return `${m.sym}${local.toFixed(m.dec)}`;
+}
+function usdToLocal(usd, code) { return usd * (FX[code || Store.data.currency] || 1); }
+function localToUSD(local, code) { return local / (FX[code || Store.data.currency] || 1); }
+function renderFxNote() {
+  const n = $('fxNote'); if (!n) return;
+  const c = Store.data.currency; const r = FX[c] || 1;
+  const ts = fxUpdatedAt ? fxUpdatedAt.toLocaleTimeString() : 'offline rates';
+  n.textContent = `Rates: 1 USD = ${r.toFixed(c==='JPY'||c==='NGN'?2:4)} ${c} · ${ts}`;
+}
+
+function applyTheme() {
+  document.body.classList.toggle('light', Store.data.theme === 'light');
+  const b = $('themeToggle'); if (b) b.textContent = Store.data.theme === 'light' ? '☀️' : '🌙';
+}
+applyTheme();
+$('themeToggle').addEventListener('click', () => {
+  Store.data.theme = Store.data.theme === 'light' ? 'dark' : 'light';
+  Store.save(); applyTheme(); Sfx.ui();
+  toast(Store.data.theme === 'light' ? '☀️ Light mode' : '🌙 Dark mode');
+});
+
+/* ===== TAB NAV ===== */
+const views = document.querySelectorAll('.view');
+const navItems = document.querySelectorAll('.nav-item');
+function switchView(id) {
+  views.forEach(v => v.classList.toggle('active', v.id === id));
+  navItems.forEach(b => b.classList.toggle('active', b.dataset.view === id));
+  const el = $(id); if (el) el.scrollTop = 0;
+  if (id === 'viewProfile') renderProfile();
+  if (id === 'viewEarn') renderSurveys();
+}
+navItems.forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+$('playFromHome').addEventListener('click', () => switchView('viewPlay'));
+$('topBalanceBtn').addEventListener('click', () => {
+  switchView('viewProfile'); Sfx.ui();
+  setTimeout(() => { const w = document.querySelector('.wallet-card'); if (w) w.scrollIntoView({behavior:'smooth', block:'center'}); }, 100);
+});
+
+/* ===== MENU DRAWER ===== */
+const menuDrawer = $('menuDrawer');
+const menuOverlay = $('menuOverlay');
+
+function openMenu() {
+  menuDrawer.classList.add('show');
+  menuOverlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  Sfx.ui();
+}
+function closeMenu() {
+  menuDrawer.classList.remove('show');
+  menuOverlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+$('menuBtn').addEventListener('click', openMenu);
+$('menuClose').addEventListener('click', closeMenu);
+menuOverlay.addEventListener('click', closeMenu);
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && menuDrawer.classList.contains('show')) closeMenu();
+});
+
+document.querySelectorAll('.menu-item[data-target]').forEach(item => {
+  item.addEventListener('click', () => {
+    switchView(item.dataset.target);
+    closeMenu();
+  });
+});
+
+$('menuResetCookies').addEventListener('click', () => {
+  Store.data.cookieConsent = null;
+  Store.save();
+  hideCookieBanner();
+  closeMenu();
+  setTimeout(showCookieBanner, 300);
+  toast('🍪 Cookie preference reset');
+});
+
+/* data-nav links */
+document.querySelectorAll('[data-nav]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    switchView(el.dataset.nav);
+  });
+});
+
+/* ===== AUDIO ===== */
+const Sfx = (() => {
+  let ac = null;
+  function acx() {
+    if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+  function tone(f,d,type='sine',g=0.15,sweepTo=null) {
+    const a = acx(); if (!a) return;
+    const o = a.createOscillator(), gn = a.createGain();
+    o.type = type; o.frequency.setValueAtTime(f, a.currentTime);
+    if (sweepTo) o.frequency.exponentialRampToValueAtTime(sweepTo, a.currentTime+d);
+    gn.gain.setValueAtTime(g, a.currentTime);
+    gn.gain.exponentialRampToValueAtTime(0.0001, a.currentTime+d);
+    o.connect(gn).connect(a.destination);
+    o.start(); o.stop(a.currentTime+d);
+  }
+  function noise(d,cutoff=800,g=0.15) {
+    const a = acx(); if (!a) return;
+    const n = a.sampleRate*d;
+    const buf = a.createBuffer(1,n,a.sampleRate);
+    const dd = buf.getChannelData(0);
+    for (let i=0;i<n;i++) dd[i] = (Math.random()*2-1)*Math.exp(-i/n*6);
+    const src = a.createBufferSource(); src.buffer = buf;
+    const f = a.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cutoff;
+    const gg = a.createGain(); gg.gain.value = g;
+    src.connect(f).connect(gg).connect(a.destination);
+    src.start();
+  }
+  return {
+    jump(){tone(280,0.16,'square',0.12,720);},
+    slide(){noise(0.22,500,0.12);},
+    turn(){noise(0.08,1400,0.06);},
+    hit(){tone(180,0.35,'sawtooth',0.18,60);},
+    relic(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,0.15,'sine',0.12),i*70));},
+    ui(){tone(660,0.08,'square',0.08);},
+    reward(){[523,784,1046].forEach((f,i)=>setTimeout(()=>tone(f,0.18,'triangle',0.14),i*90));},
+    cash(){[659,880,1175].forEach((f,i)=>setTimeout(()=>tone(f,0.22,'triangle',0.16),i*80));},
+    monkey(){tone(400,0.12,'square',0.14,900);setTimeout(()=>tone(350,0.12,'square',0.14,800),120);}
+  };
+})();
+
+/* ===== GAME ===== */
+const canvas = $('game');
+const ctx = canvas.getContext('2d');
+let W=0,H=0,DPR=1;
+
+function resize() {
+  const frame = $('gameFrame'); if (!frame) return;
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = frame.clientWidth; H = frame.clientHeight;
+  canvas.width = Math.floor(W*DPR); canvas.height = Math.floor(H*DPR);
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+
+const LANE_W = 3.0, SEG_LEN = 22, POOL_SIZE = 14;
+const LANES = [-1, 0, 1];
+const PLAYER_START_Y = 0.9;
+const GRAVITY = -26, JUMP_FORCE = 9.5;
+const BASE_SPEED = 9.5, MAX_SPEED = 22, SPEED_RAMP = 0.18;
+
+const Game = { state:'menu', score:0, distance:0, time:0, timeScale:1, camY:4.6, camZ:-7.8, shake:0, flashAlpha:0, flashColor:[255,255,255], runEarnUSD:0 };
+const Player = { x:0, y:PLAYER_START_Y, z:2, yVel:0, lane:0, targetX:0, speed:BASE_SPEED, grounded:true, sliding:false, slideTimer:0, dead:false, timeRelic:0, gravRelic:0, fireRelic:0, fortRelic:0, bodyColor:[60,165,240] };
+const Monkeys = { list:[], stumbles:0, maxStumbles:2, catchDist:0.6 };
+
+function spawnMonkeys() {
+  Monkeys.list = [
+    { lane:0, zOffset:-6, speed: BASE_SPEED * 0.92 },
+    { lane:-1, zOffset:-9, speed: BASE_SPEED * 0.88 }
+  ];
+  Monkeys.stumbles = 0;
+}
+function updateMonkeys(dt) {
+  if (Game.state !== 'running') return;
+  for (const m of Monkeys.list) {
+    m.zOffset += (m.speed - Player.speed) * dt;
+    if (Math.random() < dt * 0.5) {
+      const d = Player.lane - m.lane;
+      if (Math.abs(d) > 0) m.lane += Math.sign(d);
+    }
+    if (m.zOffset > -Monkeys.catchDist) { endRun('A monkey caught you!'); return; }
+  }
+}
+function monkeyStumble() {
+  Monkeys.stumbles++;
+  Monkeys.list.forEach(m => m.zOffset += 1.5);
+  Game.shake = 20; Sfx.monkey();
+  toast(`🐒 Monkeys gaining! ${Monkeys.maxStumbles - Monkeys.stumbles} stumble(s) left`);
+  if (Monkeys.stumbles >= Monkeys.maxStumbles) endRun('The monkeys caught you!');
+}
+
+const Track = { segments:[], difficulty:1, lastKind:'straight' };
+function makeSegment(kind, zStart, difficulty) {
+  const seg = { zStart, zEnd: zStart+SEG_LEN, kind, entities:[] };
+  if (kind === 'gap') return seg;
+  const obsCount = Math.max(0, Math.min(2, Math.floor(difficulty)) - 1);
+  const used = new Set();
+  const nObs = Math.random() < 0.55 ? obsCount : 0;
+  for (let i=0;i<nObs;i++) {
+    const lane = LANES[(Math.random()*3)|0];
+    if (used.has(lane)) continue;
+    used.add(lane);
+    seg.entities.push({kind:'obs', x:lane*LANE_W, y:1.1, z:zStart+6+Math.random()*(SEG_LEN-9), w:2.2, h:2.2, d:2.2, taken:false});
+  }
+  let freeLane = 0;
+  for (const l of LANES) if (!used.has(l)) { freeLane = l; break; }
+  const coinCount = 3 + ((Math.random()*4)|0);
+  const arc = Math.random() < 0.35;
+  for (let i=0;i<coinCount;i++) {
+    seg.entities.push({kind:'cash', x:freeLane*LANE_W, y:arc ? 1+Math.sin(i*0.9)*1.6 : 1.1, z:zStart+3+i*2.4, r:0.55, taken:false, valueUSD:0.001});
+  }
+  if (Math.random() < 0.10) {
+    seg.entities.push({kind:'relic', x:LANES[(Math.random()*3)|0]*LANE_W, y:1.6, z:zStart+6+Math.random()*(SEG_LEN-10), r:0.65, taken:false, relicType:(Math.random()*4)|0});
+  }
+  return seg;
+}
+function ensureTrack() {
+  while (Track.segments.length < POOL_SIZE) {
+    const prev = Track.segments[Track.segments.length-1];
+    const zStart = prev ? prev.zEnd : Player.z - 20;
+    let kind = 'straight';
+    const diff = Math.min(1, Track.difficulty / 5);
+    const r = Math.random();
+    if (r < 0.18*diff) kind = 'turnL';
+    else if (r < 0.36*diff) kind = 'turnR';
+    else if (r < 0.44*diff) kind = 'gap';
+    Track.segments.push(makeSegment(kind, zStart, Track.difficulty));
+    Track.difficulty += 0.05;
+  }
+  while (Track.segments.length && Track.segments[0].zEnd < Player.z - 30) Track.segments.shift();
+}
+
+const FOV = 60;
+function project(x,y,z) {
+  const camX = Player.x * 0.35;
+  const relX = x - camX, relY = y - Game.camY, relZ = z - (Player.z + Game.camZ);
+  if (relZ <= 0.1) return null;
+  const focal = (H*0.5) / Math.tan((FOV*Math.PI/180)/2);
+  return {x: W*0.5 + (relX/relZ)*focal, y: H*0.5 - (relY/relZ)*focal, scale: focal/relZ, depth: relZ};
+}
+
+function drawSky() {
+  const g = ctx.createLinearGradient(0,0,0,H*0.72);
+  g.addColorStop(0,'#1a0f08'); g.addColorStop(0.5,'#3a1e08'); g.addColorStop(1,'#6b3a10');
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H*0.72);
+  const hg = ctx.createRadialGradient(W*0.5,H*0.72,0,W*0.5,H*0.72,H*0.6);
+  hg.addColorStop(0,'rgba(255,160,60,0.55)'); hg.addColorStop(1,'rgba(255,120,30,0)');
+  ctx.fillStyle = hg; ctx.fillRect(0,0,W,H);
+}
+function drawGround() { ctx.fillStyle = '#0d0805'; ctx.fillRect(0,H*0.72,W,H*0.28); }
+function drawWall(wx, seg) {
+  const c = [project(wx,-0.5,seg.zStart), project(wx,4.0,seg.zStart), project(wx,4.0,seg.zEnd), project(wx,-0.5,seg.zEnd)];
+  if (!c.every(p=>p)) return;
+  const s = 1 - Math.min(0.85, ((seg.zStart+seg.zEnd)/2 - Player.z) * 0.014);
+  ctx.fillStyle = `rgb(${Math.round(58*s)},${Math.round(40*s)},${Math.round(24*s)})`;
+  ctx.beginPath(); ctx.moveTo(c[0].x,c[0].y);
+  for (let i=1;i<4;i++) ctx.lineTo(c[i].x,c[i].y);
+  ctx.closePath(); ctx.fill();
+}
+function drawPillar(x,z) {
+  const base = project(x,-0.5,z), top = project(x,4.5,z);
+  if (!base || !top) return;
+  const w = 0.7 * base.scale;
+  const s = 1 - Math.min(0.85, (z-Player.z)*0.012);
+  ctx.fillStyle = `rgb(${Math.round(107*s)},${Math.round(74*s)},${Math.round(42*s)})`;
+  ctx.fillRect(base.x - w/2, top.y, w, base.y - top.y);
+}
+function drawCash(e) {
+  const p = project(e.x, e.y, e.z); if (!p) return;
+  const r = e.r * p.scale;
+  const spin = (Game.time*4 + e.z*0.2) % (Math.PI*2);
+  const sx = Math.abs(Math.cos(spin));
+  ctx.save(); ctx.shadowColor = 'rgba(91,208,122,0.9)'; ctx.shadowBlur = 20;
+  ctx.fillStyle = '#a4f5b8';
+  ctx.beginPath(); ctx.ellipse(p.x, p.y, r*(0.3+0.7*sx), r, 0, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = '#2a9d4a';
+  ctx.beginPath(); ctx.ellipse(p.x, p.y, r*(0.2+0.5*sx), r*0.8, 0, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = `bold ${r*0.9}px Arial`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('$', p.x, p.y+1);
+}
+function drawObstacle(e) {
+  const hw = e.w/2, hd = e.d/2;
+  const c = [project(e.x-hw,0,e.z-hd), project(e.x+hw,0,e.z-hd), project(e.x+hw,0,e.z+hd), project(e.x-hw,0,e.z+hd)];
+  const t = [project(e.x-hw,e.h,e.z-hd), project(e.x+hw,e.h,e.z-hd), project(e.x+hw,e.h,e.z+hd), project(e.x-hw,e.h,e.z+hd)];
+  if (!c.every(p=>p) || !t.every(p=>p)) return;
+  const s = 1 - Math.min(0.85, (e.z-Player.z)*0.012);
+  ctx.fillStyle = `rgb(${Math.round(184*s)},${Math.round(41*s)},${Math.round(26*s)})`;
+  ctx.beginPath(); ctx.moveTo(c[0].x,c[0].y); ctx.lineTo(c[1].x,c[1].y); ctx.lineTo(t[1].x,t[1].y); ctx.lineTo(t[0].x,t[0].y); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = `rgb(${Math.round(230*s)},${Math.round(70*s)},${Math.round(40*s)})`;
+  ctx.beginPath(); ctx.moveTo(t[0].x,t[0].y); ctx.lineTo(t[1].x,t[1].y); ctx.lineTo(t[2].x,t[2].y); ctx.lineTo(t[3].x,t[3].y); ctx.closePath(); ctx.fill();
+}
+function drawRelic(e) {
+  const p = project(e.x, e.y + Math.sin(Game.time*3+e.z)*0.1, e.z); if (!p) return;
+  const r = e.r * p.scale;
+  const palette = ['#8ee6ff','#c07aff','#ff8033','#ffd94a'];
+  const col = palette[e.relicType % 4];
+  ctx.save(); ctx.shadowColor = col; ctx.shadowBlur = 30;
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(p.x,p.y,r,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.beginPath(); ctx.arc(p.x - r*0.3, p.y - r*0.3, r*0.4, 0, Math.PI*2); ctx.fill();
+}
+function drawMonkeyScreen(mx, my, scale, close) {
+  const bodyW = 1.1 * scale, bodyH = 1.3 * scale, headR = 0.55 * scale;
+  ctx.save(); ctx.shadowColor = 'rgba(120,70,30,0.7)'; ctx.shadowBlur = 14;
+  ctx.fillStyle = '#8b5a2b';
+  if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(mx-bodyW/2, my-bodyH, bodyW, bodyH, bodyW*0.4); ctx.fill(); }
+  else ctx.fillRect(mx-bodyW/2, my-bodyH, bodyW, bodyH);
+  ctx.restore();
+  ctx.fillStyle = '#a06b34';
+  ctx.beginPath(); ctx.arc(mx, my-bodyH-headR*0.5, headR, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#e8c898';
+  ctx.beginPath(); ctx.arc(mx, my-bodyH-headR*0.3, headR*0.7, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  const eyeY = my-bodyH-headR*0.5, eyeDX = headR*0.32;
+  ctx.beginPath();
+  ctx.arc(mx-eyeDX, eyeY, headR*0.22, 0, Math.PI*2);
+  ctx.arc(mx+eyeDX, eyeY, headR*0.22, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.arc(mx-eyeDX, eyeY, headR*0.11, 0, Math.PI*2);
+  ctx.arc(mx+eyeDX, eyeY, headR*0.11, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#6b4520';
+  ctx.beginPath(); ctx.arc(mx, my-bodyH-headR*0.05, headR*0.16, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#8b5a2b';
+  ctx.beginPath();
+  ctx.arc(mx - headR*0.95, my-bodyH-headR*0.55, headR*0.4, 0, Math.PI*2);
+  ctx.arc(mx + headR*0.95, my-bodyH-headR*0.55, headR*0.4, 0, Math.PI*2);
+  ctx.fill();
+  if (close) {
+    ctx.font = `bold ${headR*0.7}px Arial`; ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+    ctx.fillText('🐒', mx, my - bodyH - headR*1.6);
+  }
+}
+function drawMonkeys() {
+  for (const m of Monkeys.list) {
+    const wx = m.lane * LANE_W, wz = Player.z + m.zOffset;
+    const base = project(wx, 0, wz), top = project(wx, 2.0, wz);
+    if (!base || !top) continue;
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath();
+    ctx.ellipse(base.x, base.y + 3, 0.7 * base.scale, 0.28 * base.scale, 0, 0, Math.PI*2);
+    ctx.fill();
+    const headY = top.y - 0.3 * base.scale;
+    const scale = base.scale * 0.9;
+    drawMonkeyScreen(base.x, headY + scale * 1.3, scale, Math.abs(m.zOffset) < 3);
+  }
+}
+function drawPlayer() {
+  if (Player.dead) return;
+  const base = project(Player.x, 0, Player.z);
+  const top = project(Player.x, Player.y*2 + 1.2, Player.z);
+  const headTop = project(Player.x, Player.y*2 + 1.9, Player.z);
+  if (!base || !top || !headTop) return;
+  const slideScale = Player.sliding ? 0.55 : 1;
+  const bodyW = 0.9 * base.scale, bodyH = (top.y - base.y) * slideScale, headR = 0.45 * base.scale;
+  const [r,g,b] = Player.bodyColor;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.beginPath(); ctx.ellipse(base.x, base.y+4, bodyW*0.8, bodyW*0.28, 0, 0, Math.PI*2); ctx.fill();
+  ctx.save(); ctx.shadowColor = `rgb(${r},${g},${b})`; ctx.shadowBlur = 22;
+  ctx.fillStyle = `rgb(${r},${g},${b})`;
+  if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(base.x-bodyW/2, base.y-bodyH, bodyW, bodyH, bodyW*0.35); ctx.fill(); }
+  else ctx.fillRect(base.x-bodyW/2, base.y-bodyH, bodyW, bodyH);
+  ctx.restore();
+  ctx.fillStyle = `rgb(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)})`;
+  ctx.beginPath(); ctx.arc(headTop.x, headTop.y+headR*0.3, headR, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff';
+  const eyeY = headTop.y + headR*0.2, eyeDX = headR*0.35;
+  ctx.beginPath();
+  ctx.arc(headTop.x-eyeDX, eyeY, headR*0.18, 0, Math.PI*2);
+  ctx.arc(headTop.x+eyeDX, eyeY, headR*0.18, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#111';
+  ctx.beginPath();
+  ctx.arc(headTop.x-eyeDX, eyeY, headR*0.09, 0, Math.PI*2);
+  ctx.arc(headTop.x+eyeDX, eyeY, headR*0.09, 0, Math.PI*2);
+  ctx.fill();
+}
+function drawSegment(seg) {
+  if (seg.kind === 'gap') {
+    const c = [project(-4.5,-0.5,seg.zStart), project(4.5,-0.5,seg.zStart), project(4.5,-0.5,seg.zEnd), project(-4.5,-0.5,seg.zEnd)];
+    if (c.every(p=>p)) {
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.beginPath(); ctx.moveTo(c[0].x,c[0].y);
+      for (let i=1;i<4;i++) ctx.lineTo(c[i].x,c[i].y);
+      ctx.closePath(); ctx.fill();
+    }
+    return;
+  }
+  const f = [project(-4.5,-0.5,seg.zStart), project(4.5,-0.5,seg.zStart), project(4.5,-0.5,seg.zEnd), project(-4.5,-0.5,seg.zEnd)];
+  if (f.every(p=>p)) {
+    const s = 1 - Math.min(0.85, ((seg.zStart+seg.zEnd)/2 - Player.z) * 0.012);
+    ctx.fillStyle = `rgb(${Math.round(74*s)},${Math.round(53*s)},${Math.round(32*s)})`;
+    ctx.beginPath(); ctx.moveTo(f[0].x,f[0].y);
+    for (let i=1;i<4;i++) ctx.lineTo(f[i].x,f[i].y);
+    ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = `rgba(255,200,120,${0.10*s})`; ctx.lineWidth = 2;
+    for (const lx of [-1.5, 1.5]) {
+      const a = project(lx,-0.48,seg.zStart), b = project(lx,-0.48,seg.zEnd);
+      if (a && b) { ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); }
+    }
+  }
+  drawWall(-4.8, seg); drawWall(4.8, seg);
+  if (Math.floor(seg.zStart/7)%2===0) {
+    for (let p=0;p<3;p++) {
+      const pz = seg.zStart+3+p*7;
+      if (pz > seg.zEnd) break;
+      drawPillar(-4.0, pz);
+    }
+  }
+  for (const e of seg.entities) {
+    if (e.taken) continue;
+    if (e.kind === 'cash') drawCash(e);
+    else if (e.kind === 'obs') drawObstacle(e);
+    else if (e.kind === 'relic') drawRelic(e);
+  }
+}
+function render() {
+  ctx.save();
+  if (Game.shake > 0) {
+    ctx.translate((Math.random()-0.5)*Game.shake, (Math.random()-0.5)*Game.shake);
+    Game.shake *= 0.9;
+    if (Game.shake < 0.3) Game.shake = 0;
+  }
+  drawSky(); drawGround();
+  const sorted = Track.segments.slice().sort((a,b) => b.zStart - a.zStart);
+  for (const seg of sorted) drawSegment(seg);
+  drawMonkeys();
+  drawPlayer();
+  ctx.restore();
+  if (Game.flashAlpha > 0.01) {
+    ctx.fillStyle = `rgba(${Game.flashColor[0]},${Game.flashColor[1]},${Game.flashColor[2]},${Game.flashAlpha})`;
+    ctx.fillRect(0,0,W,H);
+  }
+  const vg = ctx.createRadialGradient(W/2,H/2,H*0.3,W/2,H/2,H*0.85);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.55)');
+  ctx.fillStyle = vg; ctx.fillRect(0,0,W,H);
+}
+
+function moveLane(dir) { if (Game.state !== 'running') return; Player.lane = Math.max(-1, Math.min(1, Player.lane + dir)); Player.targetX = Player.lane * LANE_W; Sfx.turn(); }
+function jump() { if (Game.state !== 'running' || !Player.grounded || Player.dead) return; Player.yVel = JUMP_FORCE; Player.grounded = false; Sfx.jump(); }
+function slide() { if (Game.state !== 'running' || Player.sliding || Player.dead) return; Player.sliding = true; Player.slideTimer = 0.7; Sfx.slide(); }
+window.addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+  if (Game.state !== 'running') return;
+  if (k === 'a' || k === 'arrowleft') moveLane(-1);
+  if (k === 'd' || k === 'arrowright') moveLane(1);
+  if (k === 'w' || k === 'arrowup' || k === ' ') jump();
+  if (k === 's' || k === 'arrowdown') slide();
+});
+let touchStart = null, swiped = false;
+function onDown(x,y) { touchStart = {x,y}; swiped = false; }
+function onMove(x,y) {
+  if (!touchStart || swiped || Game.state !== 'running') return;
+  const dx = x - touchStart.x, dy = y - touchStart.y;
+  if (Math.hypot(dx,dy) < 40) return;
+  swiped = true;
+  if (Math.abs(dx) > Math.abs(dy)) moveLane(dx > 0 ? 1 : -1);
+  else if (dy < 0) jump(); else slide();
+}
+canvas.addEventListener('touchstart', e => { const t = e.touches[0]; onDown(t.clientX, t.clientY); }, {passive:true});
+canvas.addEventListener('touchmove', e => { const t = e.touches[0]; onMove(t.clientX, t.clientY); }, {passive:true});
+canvas.addEventListener('mousedown', e => onDown(e.clientX, e.clientY));
+window.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
+window.addEventListener('mouseup', () => { touchStart = null; });
+
+const elScore = $('scoreBox'), elBest = $('bestBox'), elMoney = $('moneyBox');
+const elSlots = $('relicSlots'), elFlash = $('flash');
+const menuOverlay2 = $('menuOverlay'), overOverlay = $('overOverlay'), overStats = $('overStats');
+
+function resetRun() {
+  Player.x = 0; Player.y = PLAYER_START_Y; Player.z = 2;
+  Player.yVel = 0; Player.lane = 0; Player.targetX = 0;
+  Player.speed = BASE_SPEED; Player.grounded = true;
+  Player.sliding = false; Player.slideTimer = 0; Player.dead = false;
+  Player.timeRelic = Player.gravRelic = Player.fireRelic = Player.fortRelic = 0;
+  Player.bodyColor = [60,165,240];
+  Track.segments.length = 0; Track.difficulty = 1;
+  Track.segments.push(makeSegment('straight', Player.z - 4, 1));
+  ensureTrack();
+  Game.score = 0; Game.distance = 0;
+  Game.timeScale = 1; Game.shake = 0; Game.flashAlpha = 0;
+  Game.runEarnUSD = 0;
+  spawnMonkeys();
+}
+function startRun() {
+  Sfx.ui(); resetRun();
+  Game.state = 'running';
+  $('menuOverlay').classList.add('hidden');
+  overOverlay.classList.add('hidden');
+  canvas.classList.add('locked');
+  updateHUD();
+}
+function endRun(reason) {
+  if (Game.state !== 'running') return;
+  Game.state = 'dead'; Sfx.hit(); Game.shake = 20;
+  const earnedUSD = Math.floor(Game.distance / 100) * USD_PER_100M;
+  Store.data.balanceUSD += earnedUSD;
+  Store.data.runs += 1;
+  Store.data.totalDist += Math.floor(Game.distance);
+  if (Game.score > Store.data.best) Store.data.best = Game.score;
+  Store.save(); refreshTopBar();
+  overStats.innerHTML =
+    `Score: <b>${Game.score}</b> &nbsp; Best: <b>${Store.data.best}</b><br>` +
+    (earnedUSD > 0 ? `+${fmtMoney(earnedUSD)} earned<br>` : '') +
+    (reason ? `<small style="color:#ff8888">${reason}</small><br>` : '') +
+    `<small>Distance: ${Math.floor(Game.distance)}m</small>`;
+  overOverlay.classList.remove('hidden');
+  refreshAllUI();
+  setTimeout(() => { if (Game.state === 'dead') startRun(); }, 2400);
+}
+function activateRelic(type) {
+  switch (type) {
+    case 0: Player.timeRelic = 6; Game.flashColor = [140,230,255]; break;
+    case 1: Player.gravRelic = 8; Game.flashColor = [180,110,255]; break;
+    case 2: Player.fireRelic = 5; Game.flashColor = [255,120,40]; break;
+    case 3: Player.fortRelic = 10; Game.flashColor = [255,215,60]; break;
+  }
+  Game.flashAlpha = 0.45; Sfx.relic();
+}
+function updateHUD() {
+  elScore.innerHTML = `Score: ${Game.score}<br>Dist: ${Math.floor(Game.distance)}m`;
+  elBest.textContent = `Best: ${Store.data.best}`;
+  elMoney.innerHTML = `Earned: ${fmtMoney(Game.runEarnUSD)}<br>Monkeys: ${Monkeys.maxStumbles - Monkeys.stumbles}⚠`;
+  const set = (name,val) => {
+    const s = elSlots.querySelector(`[data-r="${name}"]`); if (!s) return;
+    s.classList.toggle('on', val>0);
+    s.textContent = val>0 ? `[${name.toUpperCase()} ${val.toFixed(1)}]` : `[${name.toUpperCase()} --]`;
+  };
+  set('time', Player.timeRelic); set('grav', Player.gravRelic);
+  set('fire', Player.fireRelic); set('fort', Player.fortRelic);
+}
+function tickFlash() {
+  if (Game.flashAlpha > 0.01) {
+    elFlash.style.background = `rgb(${Game.flashColor[0]},${Game.flashColor[1]},${Game.flashColor[2]})`;
+    elFlash.style.opacity = Game.flashAlpha.toFixed(3);
+    Game.flashAlpha *= 0.88;
+    if (Game.flashAlpha < 0.01) elFlash.style.opacity = '0';
+  }
+}
+function update(dt) {
+  if (Game.state !== 'running') return;
+  Player.speed = Math.min(MAX_SPEED, Player.speed + SPEED_RAMP * dt);
+  Player.z += Player.speed * dt;
+  Player.x += (Player.targetX - Player.x) * Math.min(1, dt*12);
+  Player.yVel += GRAVITY * dt; Player.y += Player.yVel * dt;
+  if (Player.y <= PLAYER_START_Y) { Player.y = PLAYER_START_Y; Player.yVel = 0; Player.grounded = true; }
+  if (Player.sliding) { Player.slideTimer -= dt; if (Player.slideTimer <= 0) Player.sliding = false; }
+  if (Player.timeRelic > 0) Player.timeRelic -= dt;
+  if (Player.gravRelic > 0) Player.gravRelic -= dt;
+  if (Player.fireRelic > 0) Player.fireRelic -= dt;
+  if (Player.fortRelic > 0) Player.fortRelic -= dt;
+  Game.timeScale += ((Player.timeRelic>0?0.55:1) - Game.timeScale) * Math.min(1, dt*5);
+  ensureTrack();
+  updateMonkeys(dt);
+  if (Game.state !== 'running') return;
+  for (const seg of Track.segments) {
+    if (seg.zEnd < Player.z - 2 || seg.zStart > Player.z + 2) continue;
+    for (const e of seg.entities) {
+      if (e.taken) continue;
+      const dz = Math.abs(e.z - Player.z), dx = Math.abs(e.x - Player.x);
+      if (e.kind === 'cash') {
+        if (dz < 1.2 && dx < 1.1) { e.taken = true; Game.runEarnUSD += e.valueUSD; Sfx.reward(); }
+      } else if (e.kind === 'relic') {
+        if (dz < 1.4 && dx < 1.2 && Math.abs(e.y - (Player.y + 0.5)) < 1.8) { e.taken = true; activateRelic(e.relicType); }
+      } else if (e.kind === 'obs') {
+        if (dz < 1.3 && dx < 1.3 && Player.y < 2.2) {
+          if (Player.fireRelic > 0) { e.taken = true; continue; }
+          if (Player.sliding && Math.random() < 0.5) { e.taken = true; continue; }
+          e.taken = true; monkeyStumble();
+          if (Game.state !== 'running') return;
+        }
+      }
+    }
+  }
+  for (const seg of Track.segments) {
+    if (seg.kind !== 'gap') continue;
+    if (Player.z > seg.zStart + 2 && Player.z < seg.zEnd - 2 && Player.y <= PLAYER_START_Y + 0.05) {
+      endRun('You fell into a gap!'); return;
+    }
+  }
+  Game.distance = Player.z - 2;
+  Game.score = Math.floor(Game.distance);
+  updateHUD();
+}
+let lastT = performance.now();
+function frame(now) {
+  let dt = (now - lastT) / 1000; lastT = now;
+  if (dt > 0.05) dt = 0.05;
+  const scaledDt = dt * (Game.state === 'running' ? Game.timeScale : 1);
+  Game.time += scaledDt; update(scaledDt); render(); tickFlash();
+  requestAnimationFrame(frame);
+}
+
+/* ===== MINI GAMES ===== */
+const miniCanvas = $('miniCanvas'), miniCtx = miniCanvas.getContext('2d');
+const MW = 480, MH = 480;
+const MiniGames = [
+  { id:'tap',    title:'⚡ Tap Blitz',    desc:'Tap falling orbs',       start:startTapBlitz },
+  { id:'guess',  title:'🔮 Number Guess', desc:'Find the secret number',  start:startGuess },
+  { id:'reaction',title:'🎯 Reaction',    desc:'Tap when green',          start:startReaction },
+  { id:'memory', title:'🧠 Memory',       desc:'Match the emoji pairs',   start:startMemory }
+];
+let activeMini = null, miniRAF = null, miniLast = 0;
+const miniModal = $('miniModal'), miniTitle = $('miniTitle'), miniScore = $('miniScore'), miniBest = $('miniBest'), miniMsg = $('miniMsg');
+
+function openMini(game) {
+  Sfx.ui(); miniTitle.textContent = game.title; miniMsg.textContent = 'Loading…';
+  miniModal.classList.add('show');
+  miniScore.textContent = '0'; miniBest.textContent = Store.data.miniBest[game.id] || 0;
+  activeMini = null;
+  if (miniRAF) cancelAnimationFrame(miniRAF);
+  miniLast = performance.now(); game.start();
+}
+function closeMini() { miniModal.classList.remove('show'); if (miniRAF) cancelAnimationFrame(miniRAF); miniRAF = null; activeMini = null; }
+$('miniClose').addEventListener('click', closeMini);
+
+function miniWin(points) {
+  const id = activeMini ? activeMini.id : 'unknown';
+  const prev = Store.data.miniBest[id] || 0;
+  if (points > prev) {
+    Store.data.miniBest[id] = points;
+    const reward = points * 0.001;
+    Store.data.balanceUSD += reward;
+    Store.data.miniWins++;
+    Store.save(); refreshTopBar();
+    toast(`🏆 New best! +${fmtMoney(reward)}`);
+    refreshAllUI();
+  }
+  miniBest.textContent = Store.data.miniBest[id] || 0;
+}
+function miniLoop(now) {
+  if (!activeMini) return;
+  let dt = (now - miniLast)/1000; miniLast = now;
+  if (dt > 0.05) dt = 0.05;
+  miniCtx.clearRect(0,0,MW,MH);
+  activeMini.update(dt); activeMini.render();
+  miniRAF = requestAnimationFrame(miniLoop);
+}
+function beginMiniLoop(game) { activeMini = game; miniRAF = requestAnimationFrame(t => { miniLast = t; miniLoop(t); }); }
+
+function startTapBlitz() {
+  const orbs = []; let score = 0, timeLeft = 15, spawnT = 0, playing = true;
+  miniMsg.textContent = 'Tap the orbs before they escape!';
+  function spawn() { orbs.push({x:40+Math.random()*(MW-80), y:-20, r:22+Math.random()*12, vy:90+Math.random()*80, col:`hsl(${Math.random()*60+10},90%,60%)`}); }
+  miniCanvas.onpointerdown = e => {
+    if (!playing) return;
+    const r = miniCanvas.getBoundingClientRect();
+    const mx = (e.clientX-r.left)*(MW/r.width), my = (e.clientY-r.top)*(MH/r.height);
+    for (let i=orbs.length-1;i>=0;i--) {
+      const o = orbs[i];
+      if (Math.hypot(mx-o.x,my-o.y) < o.r) { orbs.splice(i,1); score++; miniScore.textContent = score; Sfx.reward(); return; }
+    }
+  };
+  beginMiniLoop({
+    id:'tap',
+    update(dt) {
+      if (!playing) return;
+      timeLeft -= dt; spawnT -= dt;
+      if (spawnT <= 0) { spawn(); spawnT = 0.35; }
+      for (let i=orbs.length-1;i>=0;i--) { orbs[i].y += orbs[i].vy*dt; if (orbs[i].y > MH+40) orbs.splice(i,1); }
+      miniMsg.textContent = `Time: ${timeLeft.toFixed(1)}s`;
+      if (timeLeft <= 0) { playing = false; miniWin(score); miniMsg.textContent = `Time! Score: ${score}`; }
+    },
+    render() {
+      miniCtx.fillStyle = '#07040a'; miniCtx.fillRect(0,0,MW,MH);
+      orbs.forEach(o => {
+        miniCtx.save(); miniCtx.shadowColor = o.col; miniCtx.shadowBlur = 20;
+        miniCtx.fillStyle = o.col;
+        miniCtx.beginPath(); miniCtx.arc(o.x,o.y,o.r,0,Math.PI*2); miniCtx.fill();
+        miniCtx.restore();
+      });
+    }
+  });
+}
+function startGuess() {
+  let secret = 1 + Math.floor(Math.random()*100);
+  let attempts = 0, lo = 1, hi = 100, done = false;
+  miniMsg.textContent = 'Click the bar to guess 1–100.';
+  miniScore.textContent = '0';
+  miniCanvas.onpointerdown = e => {
+    if (done) return;
+    const r = miniCanvas.getBoundingClientRect();
+    const x = (e.clientX-r.left)*(MW/r.width);
+    const guess = Math.max(1, Math.min(100, Math.round((x/MW)*99+1)));
+    attempts++;
+    const diff = Math.abs(guess-secret);
+    const score = Math.max(1, 100 - attempts*5 - diff);
+    miniScore.textContent = score;
+    if (guess === secret) { done = true; Sfx.cash(); miniMsg.textContent = `🎉 ${secret} in ${attempts}! Score: ${score}`; miniWin(score); }
+    else if (guess < secret) { lo = Math.max(lo, guess+1); miniMsg.textContent = `📈 Higher! (${lo}–${hi}) — try ${attempts+1}`; }
+    else { hi = Math.min(hi, guess-1); miniMsg.textContent = `📉 Lower! (${lo}–${hi}) — try ${attempts+1}`; }
+  };
+  beginMiniLoop({
+    id:'guess', update(){},
+    render() {
+      miniCtx.fillStyle = '#07040a'; miniCtx.fillRect(0,0,MW,MH);
+      miniCtx.fillStyle = 'rgba(255,200,80,0.15)';
+      const loX = ((lo-1)/99)*MW, hiX = ((hi-1)/99)*MW;
+      miniCtx.fillRect(loX, MH*0.4, hiX-loX, MH*0.2);
+      miniCtx.strokeStyle = '#ffce4a'; miniCtx.lineWidth = 2;
+      miniCtx.strokeRect(loX, MH*0.4, hiX-loX, MH*0.2);
+      miniCtx.fillStyle = '#f5e8d0';
+      miniCtx.font = 'bold 40px Trebuchet MS'; miniCtx.textAlign = 'center';
+      miniCtx.fillText(`${lo} – ${hi}`, MW/2, MH*0.55);
+      miniCtx.font = 'bold 22px Trebuchet MS'; miniCtx.fillStyle = '#a89178';
+      miniCtx.fillText(`Attempts: ${attempts}`, MW/2, MH*0.75);
+    }
+  });
+}
+function startReaction() {
+  let phase = 'wait', waitT = 0, goTime = 0;
+  miniMsg.textContent = 'Wait for green…';
+  miniCanvas.onpointerdown = () => {
+    if (phase === 'wait') { waitT = 0.8+Math.random()*2; miniMsg.textContent = 'Too early! Wait…'; return; }
+    if (phase === 'go') {
+      const rt = (performance.now()/1000) - goTime;
+      const score = Math.max(0, Math.round(1000 - rt*500));
+      miniScore.textContent = score;
+      miniMsg.textContent = `⚡ ${(rt*1000).toFixed(0)}ms — score ${score}`;
+      phase = 'wait'; waitT = 0.8+Math.random()*2; Sfx.reward(); miniWin(score);
+    }
+  };
+  beginMiniLoop({
+    id:'reaction',
+    update(dt) {
+      if (phase === 'wait') {
+        waitT -= dt;
+        if (waitT <= 0) { phase = 'go'; goTime = performance.now()/1000; miniMsg.textContent = 'TAP NOW!'; }
+      }
+    },
+    render() {
+      miniCtx.fillStyle = phase === 'go' ? '#1fbf4a' : '#2a1400';
+      miniCtx.fillRect(0,0,MW,MH);
+      miniCtx.fillStyle = '#fff';
+      miniCtx.font = 'bold 52px Trebuchet MS';
+      miniCtx.textAlign = 'center'; miniCtx.textBaseline = 'middle';
+      miniCtx.fillText(phase === 'go' ? 'TAP!' : 'WAIT…', MW/2, MH/2);
+    }
+  });
+}
+function startMemory() {
+  const symbols = ['🐒','🍌','🌴','🗿','🔥','💎','⚡','🎯'];
+  const deck = symbols.concat(symbols).sort(() => Math.random()-0.5);
+  const revealed = new Array(16).fill(false), matched = new Array(16).fill(false);
+  let first = -1, second = -1, lock = false, moves = 0;
+  miniMsg.textContent = 'Match all 8 pairs!'; miniScore.textContent = '0';
+  const cell = MW/4;
+  miniCanvas.onpointerdown = e => {
+    if (lock) return;
+    const r = miniCanvas.getBoundingClientRect();
+    const mx = (e.clientX-r.left)*(MW/r.width), my = (e.clientY-r.top)*(MH/r.height);
+    const col = Math.floor(mx/cell), row = Math.floor(my/cell);
+    const i = row*4+col;
+    if (i<0 || i>=16 || matched[i] || revealed[i]) return;
+    revealed[i] = true; Sfx.turn();
+    if (first === -1) { first = i; return; }
+    second = i; moves++;
+    if (deck[first] === deck[second]) {
+      matched[first] = matched[second] = true; first = second = -1;
+      if (matched.filter(Boolean).length/2 === 8) {
+        const score = Math.max(50, 500 - moves*15);
+        miniScore.textContent = score;
+        miniMsg.textContent = `🎉 Cleared in ${moves}! Score ${score}`;
+        Sfx.cash(); miniWin(score);
+      }
+    } else {
+      lock = true;
+      setTimeout(() => { revealed[first] = revealed[second] = false; first = second = -1; lock = false; }, 700);
+    }
+  };
+  beginMiniLoop({
+    id:'memory', update(){},
+    render() {
+      miniCtx.fillStyle = '#07040a'; miniCtx.fillRect(0,0,MW,MH);
+      for (let i=0; i<16; i++) {
+        const col = i%4, row = Math.floor(i/4);
+        const x = col*cell, y = row*cell;
+        miniCtx.fillStyle = matched[i] ? 'rgba(91,208,122,0.35)' : (revealed[i] ? 'rgba(255,200,80,0.35)' : 'rgba(255,200,80,0.08)');
+        miniCtx.fillRect(x+4, y+4, cell-8, cell-8);
+        miniCtx.strokeStyle = 'rgba(255,200,80,0.5)';
+        miniCtx.strokeRect(x+4, y+4, cell-8, cell-8);
+        if (revealed[i] || matched[i]) {
+          miniCtx.font = '52px serif';
+          miniCtx.textAlign = 'center'; miniCtx.textBaseline = 'middle';
+          miniCtx.fillText(deck[i], x+cell/2, y+cell/2+4);
+        }
+      }
+    }
+  });
+}
+(function buildMiniGrid() {
+  const g = $('minigameGrid');
+  MiniGames.forEach(mg => {
+    const el = document.createElement('div');
+    el.className = 'mg-card';
+    el.innerHTML = `<div class="mg-ic">${mg.title.split(' ')[0]}</div>
+                    <div class="mg-title">${mg.title.replace(/^\S+\s/,'')}</div>
+                    <div class="mg-desc">${mg.desc}</div>`;
+    el.addEventListener('click', () => openMini(mg));
+    g.appendChild(el);
+  });
+})();
+
+/* ===== SURVEYS ===== */
+const SURVEYS = [
+  { id:'s1', title:'Quick Game Feedback', desc:'Rate the game — 8 questions', rewardUSD:1.00, time:'2 min', questions:8 },
+  { id:'s2', title:'Daily Habits Survey', desc:'Answer about your routine', rewardUSD:0.60, time:'3 min', questions:10 },
+  { id:'s3', title:'Mobile Gaming Study', desc:'How you play on mobile', rewardUSD:0.75, time:'2 min', questions:7 },
+  { id:'s4', title:'Product Preferences', desc:'Choose your favorite brands', rewardUSD:0.45, time:'2 min', questions:6 },
+  { id:'s5', title:'Shopping Habits', desc:'Where and how you shop', rewardUSD:0.30, time:'1 min', questions:5 }
+];
+function isSurveyDone(id) { return !!(Store.data.surveys[id] && Store.data.surveys[id].status === 'done'); }
+function renderSurveys() {
+  const box = $('surveyList'); if (!box) return;
+  box.innerHTML = '';
+  SURVEYS.forEach(s => {
+    const done = isSurveyDone(s.id);
+    const card = document.createElement('div');
+    card.className = 'survey-card' + (done ? ' done' : '');
+    card.innerHTML = `
+      <div class="sicon">${done ? '✓' : '📋'}</div>
+      <div class="sinfo">
+        <div class="st">${s.title}</div>
+        <div class="sd">${s.desc}</div>
+        <div class="sr">Earn up to ${fmtMoney(s.rewardUSD)}</div>
+        <span class="time-badge">⏱ ${s.time} · ${s.questions} questions</span>
+      </div>
+      <button ${done ? 'disabled' : ''} data-survey="${s.id}">${done ? 'Done' : 'START'}</button>
+    `;
+    box.appendChild(card);
+  });
+  box.querySelectorAll('button[data-survey]').forEach(b => b.addEventListener('click', () => startSurvey(b.dataset.survey)));
+  const maxS = Math.max(...SURVEYS.map(s => s.rewardUSD));
+  if ($('surveyMaxLabel')) $('surveyMaxLabel').textContent = fmtMoney(maxS);
+}
+function startSurvey(id) {
+  const s = SURVEYS.find(x => x.id === id); if (!s || isSurveyDone(id)) return;
+  if (!confirm(`📋 ${s.title}\n\n${s.desc}\nTime: ${s.time}\nQuestions: ${s.questions}\nReward: up to ${fmtMoney(s.rewardUSD)}\n\nStart survey now?`)) return;
+  toast(`Opening survey… (${s.questions} questions)`);
+  setTimeout(() => {
+    const amount = s.rewardUSD * (0.8 + Math.random()*0.2);
+    Store.data.balanceUSD += amount;
+    Store.data.surveys[id] = { status:'done', completedAt: Date.now(), earned: amount };
+    Store.save();
+    Sfx.cash();
+    toast(`🎉 Survey complete! +${fmtMoney(amount)}`);
+    refreshTopBar(); renderSurveys(); refreshAllUI();
+  }, 2500);
+}
+
+/* ===== HOME / DAILY / MISSIONS ===== */
+const DAILY_REWARDS_USD = [0.02, 0.03, 0.04, 0.05, 0.07, 0.10, 0.15];
+function refreshHome() {
+  $('homeBest').textContent = Store.data.best;
+  $('homeRuns').textContent = Store.data.runs;
+  $('homeDist').textContent = Store.data.totalDist;
+}
+function refreshTopBar() {
+  $('topBalance').textContent = fmtMoney(Store.data.balanceUSD);
+  $('topCurCode').textContent = Store.data.currency;
+}
+function refreshDaily() {
+  const dayIndex = Math.floor(Date.now()/86400000);
+  const claimedToday = Store.data.lastDailyClaim === dayIndex;
+  const streak = Store.data.dailyStreak % 7;
+  const row = $('dailyRow'); row.innerHTML = '';
+  DAILY_REWARDS_USD.forEach((r, i) => {
+    const isClaimed = i < streak;
+    const isToday = i === streak && !claimedToday;
+    const div = document.createElement('div');
+    div.className = 'day' + (isClaimed ? ' claimed' : '') + (isToday ? ' today' : '');
+    div.innerHTML = `<span class="d">D${i+1}</span><span class="r">${fmtMoney(r)}</span>`;
+    row.appendChild(div);
+  });
+  const btn = $('claimDailyBtn');
+  if (claimedToday) { btn.disabled = true; btn.textContent = '✓ Claimed — Come Back Tomorrow'; btn.style.opacity = 0.6; }
+  else { btn.disabled = false; btn.textContent = `Claim Day ${streak+1} — ${fmtMoney(DAILY_REWARDS_USD[streak])}`; btn.style.opacity = 1; }
+}
+$('claimDailyBtn').addEventListener('click', () => {
+  const dayIndex = Math.floor(Date.now()/86400000);
+  if (Store.data.lastDailyClaim === dayIndex) return;
+  const reward = DAILY_REWARDS_USD[Store.data.dailyStreak % 7];
+  Store.data.balanceUSD += reward;
+  Store.data.dailyStreak++;
+  Store.data.lastDailyClaim = dayIndex;
+  Store.save(); Sfx.cash();
+  toast(`+${fmtMoney(reward)} claimed!`);
+  refreshDaily(); refreshTopBar(); refreshAllUI();
+});
+
+const MISSIONS = [
+  { id:'run500', t:'Run 500m in one run', r:0.05, target:500, cur:()=>Math.min(500,Math.floor(Game.distance)), icon:'🏃' },
+  { id:'runs3', t:'Play 3 runs', r:0.03, target:3, cur:()=>Math.min(3,Store.data.runs), icon:'🎮' },
+  { id:'best200', t:'Reach a best of 200m', r:0.04, target:200, cur:()=>Math.min(200,Store.data.best), icon:'🏆' },
+  { id:'catch5', t:'Complete 5 runs', r:0.08, target:5, cur:()=>Math.min(5,Store.data.runs), icon:'🐒' }
+];
+function refreshMissions() {
+  const box = $('missionsBox'); box.innerHTML = '';
+  MISSIONS.forEach(m => {
+    const cur = m.cur();
+    const pct = Math.min(100, (cur/m.target)*100);
+    const done = cur >= m.target;
+    const claimedKey = 'mission_' + m.id + '_done';
+    const claimed = localStorage.getItem(claimedKey) === '1';
+    const div = document.createElement('div');
+    div.className = 'mission';
+    div.innerHTML = `
+      <div class="icon">${m.icon}</div>
+      <div class="info">
+        <div class="t">${m.t}</div>
+        <div class="d">${cur}/${m.target} · ${fmtMoney(m.r)}</div>
+        <div class="bar"><span style="width:${pct}%"></span></div>
+      </div>
+      <button ${(!done || claimed) ? 'disabled' : ''} data-mission="${m.id}">
+        ${claimed ? '✓' : done ? 'CLAIM' : '…'}
+      </button>`;
+    box.appendChild(div);
+  });
+  box.querySelectorAll('button[data-mission]').forEach(b => {
+    b.addEventListener('click', () => {
+      const m = MISSIONS.find(x => x.id === b.dataset.mission); if (!m) return;
+      const key = 'mission_' + m.id + '_done';
+      if (localStorage.getItem(key) === '1') return;
+      if (m.cur() < m.target) return;
+      Store.data.balanceUSD += m.r;
+      Store.save(); localStorage.setItem(key, '1');
+      Sfx.cash(); toast(`+${fmtMoney(m.r)}`);
+      refreshMissions(); refreshTopBar(); refreshAllUI();
+    });
+  });
+}
+
+$('watchAdBtn').addEventListener('click', () => {
+  const now = Date.now();
+  if (now - Store.data.lastAdWatch < 30*60*1000) {
+    const mins = Math.ceil((30*60*1000 - (now - Store.data.lastAdWatch))/60000);
+    toast(`Available in ${mins} min`); return;
+  }
+  const btn = $('watchAdBtn');
+  btn.disabled = true;
+  let remaining = 3; btn.textContent = `▶ ${remaining}s`;
+  const iv = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(iv);
+      Store.data.balanceUSD += 0.25;
+      Store.data.lastAdWatch = Date.now();
+      Store.save(); Sfx.cash(); toast('+$0.25 rewarded!');
+      btn.disabled = false; btn.textContent = 'WATCH';
+      refreshTopBar(); refreshAllUI();
+    } else btn.textContent = `▶ ${remaining}s`;
+  }, 1000);
+});
+
+$('spinBtn').addEventListener('click', () => {
+  const now = Date.now();
+  if (now - Store.data.lastSpin < 24*60*60*1000) {
+    const hrs = Math.ceil((24*60*60*1000 - (now - Store.data.lastSpin))/3600000);
+    toast(`Spin available in ${hrs}h`); return;
+  }
+  const rewards = [0.05, 0.10, 0.15, 0.25, 0.50, 1.00];
+  const reward = rewards[(Math.random()*rewards.length)|0];
+  Store.data.balanceUSD += reward;
+  Store.data.lastSpin = now;
+  Store.save(); Sfx.cash();
+  toast(`🎰 You won ${fmtMoney(reward)}!`);
+  refreshTopBar(); refreshAllUI();
+});
+
+/* ===== PROFILE ===== */
+function getInitials(name) {
+  if (!name) return 'R';
+  const p = name.trim().split(/\s+/).slice(0,2);
+  return p.map(x => x[0] ? x[0].toUpperCase() : '').join('') || 'R';
+}
+function renderAvatar() {
+  const el = $('profileAvatar'); const img = Store.data.profile.avatar;
+  if (img) { el.innerHTML = `<img src="${img}" alt="avatar" />`; el.style.backgroundImage = 'none'; }
+  else { el.innerHTML = `<span id="avatarInitials">${getInitials(Store.data.profile.name)}</span>`; el.style.backgroundImage = 'linear-gradient(135deg, #ffd166, #ff9f1c, #d97706)'; }
+}
+$('avatarFile').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  if (!f.type.startsWith('image/')) { toast('Please pick an image'); return; }
+  if (f.size > 2*1024*1024) { toast('Image must be under 2 MB'); return; }
+  const r = new FileReader();
+  r.onload = ev => { Store.data.profile.avatar = ev.target.result; Store.save(); renderAvatar(); Sfx.reward(); toast('📷 Photo updated'); };
+  r.readAsDataURL(f);
+});
+const editWindow = $('editWindow'), editBtn = $('editProfileBtn');
+function openEditWindow() {
+  const p = Store.data.profile;
+  $('inputName').value = p.name; $('inputId').value = p.id; $('inputEmail').value = p.email;
+  $('errName').textContent = ''; $('errId').textContent = ''; $('errEmail').textContent = '';
+  editWindow.classList.add('show'); editBtn.textContent = '✏️ Editing…';
+  setTimeout(() => editWindow.scrollIntoView({behavior:'smooth', block:'center'}), 60);
+}
+function closeEditWindow() { editWindow.classList.remove('show'); editBtn.textContent = '✏️ Edit Profile'; }
+editBtn.addEventListener('click', () => { if (editWindow.classList.contains('show')) closeEditWindow(); else openEditWindow(); });
+$('closeEdit').addEventListener('click', closeEditWindow);
+$('cancelEdit').addEventListener('click', closeEditWindow);
+$('saveProfile').addEventListener('click', () => {
+  const name = $('inputName').value.trim(), id = $('inputId').value.trim(), email = $('inputEmail').value.trim();
+  let ok = true;
+  if (!name) { $('errName').textContent = 'Name required'; ok = false; } else $('errName').textContent = '';
+  if (!id) { $('errId').textContent = 'ID required'; ok = false; }
+  else if (id.length < 3) { $('errId').textContent = 'Min 3 chars'; ok = false; } else $('errId').textContent = '';
+  if (!email) { $('errEmail').textContent = 'Email required'; ok = false; }
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { $('errEmail').textContent = 'Invalid email'; ok = false; } else $('errEmail').textContent = '';
+  if (!ok) return;
+  Store.data.profile.name = name; Store.data.profile.id = id; Store.data.profile.email = email;
+  Store.save(); renderProfile(); closeEditWindow(); Sfx.reward(); toast('💾 Profile saved');
+});
+$('currencySelect').addEventListener('change', e => {
+  Store.data.currency = e.target.value; Store.save();
+  refreshTopBar(); renderWallet(); renderWithdraw(); renderSurveys();
+  Sfx.ui();
+});
+function renderWallet() {
+  const c = Store.data.currency, balance = Store.data.balanceUSD;
+  $('walletBalance').textContent = fmtMoney(balance, c);
+  const minLocal = MIN_WITHDRAW_USD * (FX[c] || 1);
+  if (balance < MIN_WITHDRAW_USD) {
+    const need = MIN_WITHDRAW_USD - balance;
+    $('walletSub').textContent = `${fmtMoney(need, c)} more to unlock withdrawal`;
+  } else {
+    $('walletSub').textContent = `Ready to withdraw (min ${fmtMoney(minLocal, c)})`;
+  }
+  $('currencySelect').value = c;
+  renderFxNote();
+  $('minWdLabel').textContent = fmtMoney(MIN_WITHDRAW_USD, c) + ' ' + c;
+  $('minWdBalance').textContent = fmtMoney(balance, c);
+  $('wdCurLabel').textContent = c;
+  $('wdAmountHint').textContent = `Minimum: ${fmtMoney(MIN_WITHDRAW_USD, c)} · Available: ${fmtMoney(balance, c)}`;
+  $('wdAmount').min = String(MIN_WITHDRAW_USD * (FX[c] || 1));
+}
+let selectedMethod = 'paypal';
+document.querySelectorAll('.wd-method').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.wd-method').forEach(x => x.classList.remove('selected'));
+    el.classList.add('selected'); selectedMethod = el.dataset.method;
+    applyMethodMeta(); Sfx.ui();
+  });
+});
+function applyMethodMeta() {
+  const meta = METHOD_META[selectedMethod];
+  $('wdAccountLabel').textContent = meta.label;
+  $('wdAccount').placeholder = meta.placeholder;
+  $('wdAccountHint').textContent = meta.hint;
+  $('wdAccount').value = ''; $('errAccount').textContent = '';
+}
+applyMethodMeta();
+function renderWithdrawHistory() {
+  const hist = $('wdHistory');
+  if (!Store.data.withdrawals.length) { hist.innerHTML = '<div class="empty">No withdrawals yet.</div>'; return; }
+  hist.innerHTML = Store.data.withdrawals.slice().reverse().map(w => `
+    <div class="wd-item">
+      <div class="l">
+        <div class="amt">${fmtMoney(w.amountUSD, w.currency)}</div>
+        <div class="meta">${w.method.toUpperCase()} · ${w.account} · ${w.date}</div>
+      </div>
+      <span class="status ${w.status.toLowerCase()}">${w.status}</span>
+    </div>
+  `).join('');
+}
+$('wdSubmit').addEventListener('click', async () => {
+  const c = Store.data.currency, meta = METHOD_META[selectedMethod];
+  const account = $('wdAccount').value.trim(), amountLocal = parseFloat($('wdAmount').value);
+  $('errAccount').textContent = ''; $('errAmount').textContent = '';
+  if (!account) { $('errAccount').textContent = `${meta.label} required`; return; }
+  if (!meta.validate(account)) { $('errAccount').textContent = `Invalid ${meta.label}`; return; }
+  if (!amountLocal || isNaN(amountLocal) || amountLocal <= 0) { $('errAmount').textContent = 'Enter a valid amount'; return; }
+  const amountUSD = localToUSD(amountLocal, c);
+  if (amountUSD < MIN_WITHDRAW_USD) { $('errAmount').textContent = `Min is ${fmtMoney(MIN_WITHDRAW_USD, c)}`; return; }
+  if (amountUSD > Store.data.balanceUSD) { $('errAmount').textContent = `Insufficient. Available: ${fmtMoney(Store.data.balanceUSD, c)}`; return; }
+  Store.data.balanceUSD -= amountUSD;
+  const wd = { id:'wd_' + Date.now(), amountUSD: Number(amountUSD.toFixed(4)), currency:c, method:selectedMethod, account, status:'pending', date: new Date().toLocaleString() };
+  Store.data.withdrawals.push(wd); Store.save();
+  refreshTopBar(); renderWallet(); renderWithdrawHistory();
+  Sfx.cash(); toast(`🚀 Withdrawal of ${fmtMoney(amountUSD, c)} requested`);
+  $('wdAccount').value = ''; $('wdAmount').value = '';
+  if (PAYOUT_API_URL) {
+    try {
+      const res = await fetch(PAYOUT_API_URL, { method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ withdrawalId: wd.id, amountUSD: wd.amountUSD, currency: wd.currency, method: wd.method, account: wd.account,
+          user:{ id: Store.data.profile.id, name: Store.data.profile.name, email: Store.data.profile.email } }) });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.success) { wd.status = 'processing'; Store.save(); renderWithdrawHistory(); toast('✅ Sent to payment provider'); }
+      else { wd.status = 'rejected'; Store.data.balanceUSD += amountUSD; Store.save(); refreshTopBar(); renderWallet(); renderWithdrawHistory(); toast('❌ Rejected — refunded'); }
+    } catch (e) {
+      wd.status = 'rejected'; Store.data.balanceUSD += amountUSD; Store.save(); refreshTopBar(); renderWallet(); renderWithdrawHistory(); toast('❌ Network error — refunded');
+    }
+  } else {
+    setTimeout(() => { const w = Store.data.withdrawals.find(x => x.id === wd.id); if (w) { w.status = 'processing'; Store.save(); renderWithdrawHistory(); toast('⏳ Processing…'); } }, 2500);
+    setTimeout(() => { const w = Store.data.withdrawals.find(x => x.id === wd.id); if (w) { w.status = 'paid'; Store.save(); renderWithdrawHistory(); toast('✅ Paid (simulation)'); } }, 7000);
+  }
+});
+function renderProfile() {
+  const p = Store.data.profile;
+  $('displayName').textContent = p.name || 'Runner';
+  $('displayId').textContent = 'ID: ' + (p.id || 'DT-0000');
+  $('displayEmail').textContent = p.email || 'runner@gmail.com';
+  renderAvatar();
+  $('infoBest').textContent = Store.data.best;
+  $('infoRuns').textContent = Store.data.runs;
+  $('infoBalance').textContent = fmtMoney(Store.data.balanceUSD);
+  renderWallet(); renderWithdrawHistory();
+}
+function refreshProfile() { renderProfile(); }
+function renderWithdraw() { renderWallet(); renderWithdrawHistory(); }
+
+/* ===== COOKIE BANNER ===== */
+function showCookieBanner() { $('cookieBanner').classList.add('show'); }
+function hideCookieBanner() { $('cookieBanner').classList.remove('show'); }
+$('cookieAccept').addEventListener('click', () => {
+  Store.data.cookieConsent = 'accepted'; Store.save();
+  hideCookieBanner(); Sfx.ui(); toast('🍪 Cookies accepted');
+});
+$('cookieDecline').addEventListener('click', () => {
+  Store.data.cookieConsent = 'declined'; Store.save();
+  hideCookieBanner(); Sfx.ui(); toast('Non-essential cookies disabled');
+});
+if (!Store.data.cookieConsent) {
+  setTimeout(showCookieBanner, 1200);
+}
+
+/* ===== CONTACT FORM ===== */
+$('cfSubmit').addEventListener('click', () => {
+  const name = $('cfName').value.trim();
+  const email = $('cfEmail').value.trim();
+  const message = $('cfMessage').value.trim();
+  if (!name || !email || !message) { toast('Please fill name, email, and message'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Please enter a valid email'); return; }
+  Sfx.cash();
+  toast('📨 Message sent! We reply within 48h');
+  $('cfName').value = ''; $('cfEmail').value = ''; $('cfMessage').value = ''; $('cfTopic').selectedIndex = 0;
+});
+
+/* ===== MASTER REFRESH + BOOT ===== */
+function refreshAllUI() {
+  refreshHome(); refreshTopBar(); refreshDaily(); refreshMissions(); refreshProfile(); renderSurveys();
+}
+$('runBtn').addEventListener('click', startRun);
+window.addEventListener('pointerdown', () => {
+  try { new (window.AudioContext || window.webkitAudioContext)().resume(); } catch (e) {}
+}, { once: true });
+resize(); refreshAllUI(); resetRun(); updateHUD();
+requestAnimationFrame(frame);
+document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => setTimeout(resize, 30)));
+fetchLiveRates().then(() => { renderWallet(); renderWithdrawHistory(); refreshAllUI(); });
+
+})();
+</script>
+</body>
+</html>
