@@ -1813,8 +1813,7 @@
 (() => {
 'use strict';
 
-const PAYOUT_API_URL = '';
-const USD_PER_100M = 0.01;
+const USD_PER_100M = 0.01; // used only for the optimistic local estimate; the real credit comes from Api.gameClaim
 const MIN_WITHDRAW_USD = 5.00;
 const FALLBACK_RATES = {USD:1, INR:83.25, EUR:0.92, GBP:0.79, JPY:149.5, AUD:1.52, CAD:1.36, BRL:5.05, AED:3.67, NGN:1550};
 const CURRENCIES = {USD:{sym:'$',dec:2}, INR:{sym:'₹',dec:2}, EUR:{sym:'€',dec:2}, GBP:{sym:'£',dec:2}, JPY:{sym:'¥',dec:0}, AUD:{sym:'A$',dec:2}, CAD:{sym:'C$',dec:2}, BRL:{sym:'R$',dec:2}, AED:{sym:'د.إ',dec:2}, NGN:{sym:'₦',dec:2}};
@@ -1830,7 +1829,8 @@ const Store = {
   data: {
     best:0, balanceUSD:0, runs:0, totalDist:0,
     dailyStreak:0, lastDailyClaim:0,
-    lastAdWatch:0, lastSpin:0,
+    // ad/spin cooldowns now live server-side (users.last_spin_at, ad_sessions
+    // table) since a client-only cooldown was just a UI nicety, not a control.
     miniWins:0, miniBest:{},
     theme:'light',
     currency:'USD',
@@ -1847,6 +1847,74 @@ Store.load();
 if (!Store.data.profile) {
   Store.data.profile = { name:'Runner', id:'DT-' + Math.floor(1000+Math.random()*9000), email:'runner@gmail.com', avatar:'' };
   Store.save();
+}
+
+/* ===== BACKEND API CLIENT =====
+   Talks to the Express/SQLite backend. Balance is authoritative on the
+   server (SUM of a verified ledger) — this client caches the last known
+   value in Store.data.balanceUSD for instant UI + offline viewing, but any
+   money-moving action always asks the server first and trusts its answer,
+   never a locally-computed one.
+
+   AUTH NOTE: real login UI (email/password, magic link, OAuth — your call)
+   is still needed. What's here is a placeholder "silent account" shim: on
+   first run it registers a throwaway account using the device's random
+   profile ID as the email and a randomly-generated password kept in
+   localStorage. That's enough to exercise every endpoint end-to-end, but it
+   is NOT real auth — anyone who copies the localStorage value can log in as
+   this "user", and the account is tied to one browser only. Swap
+   Api.ensureSession() for real login before this goes anywhere near
+   production. */
+const Api = {
+  base: (window.DOLLARTUBE_API_BASE || 'http://localhost:4000'),
+  token: localStorage.getItem('dt_token') || null,
+
+  async _fetch(path, opts = {}) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+    if (this.token) headers.Authorization = 'Bearer ' + this.token;
+    let res;
+    try {
+      res = await fetch(this.base + path, Object.assign({}, opts, { headers }));
+    } catch (e) {
+      return { ok: false, offline: true, error: 'Network error — backend unreachable' };
+    }
+    let json = {};
+    try { json = await res.json(); } catch (e) {}
+    if (!res.ok) return { ok: false, status: res.status, error: json.error || 'Request failed', body: json };
+    return { ok: true, body: json };
+  },
+
+  setToken(t) { this.token = t; localStorage.setItem('dt_token', t); },
+
+  async ensureSession() {
+    if (this.token) return true;
+    let creds = JSON.parse(localStorage.getItem('dt_shim_creds') || 'null');
+    if (!creds) {
+      creds = { email: Store.data.profile.id.toLowerCase() + '@device.local',
+                password: (crypto.randomUUID ? crypto.randomUUID() : String(Math.random())) + 'Aa1' };
+      localStorage.setItem('dt_shim_creds', JSON.stringify(creds));
+    }
+    let r = await this._fetch('/api/auth/login', { method: 'POST', body: JSON.stringify(creds) });
+    if (!r.ok) r = await this._fetch('/api/auth/register', { method: 'POST', body: JSON.stringify(Object.assign({ name: Store.data.profile.name }, creds)) });
+    if (r.ok && r.body.token) { this.setToken(r.body.token); return true; }
+    return false;
+  },
+
+  async getWallet() { return this._fetch('/api/wallet'); },
+  async getWithdrawHistory() { return this._fetch('/api/withdraw/history'); },
+  async adStart() { return this._fetch('/api/rewards/ad/start', { method: 'POST' }); },
+  async adComplete(sessionId) { return this._fetch('/api/rewards/ad/complete', { method: 'POST', body: JSON.stringify({ sessionId }) }); },
+  async dailyClaim() { return this._fetch('/api/rewards/daily/claim', { method: 'POST' }); },
+  async spinClaim() { return this._fetch('/api/rewards/spin/claim', { method: 'POST' }); },
+  async gameClaim(distanceM) { return this._fetch('/api/rewards/game/claim', { method: 'POST', body: JSON.stringify({ distanceM }) }); },
+  async withdraw(payload) { return this._fetch('/api/withdraw', { method: 'POST', body: JSON.stringify(payload) }); }
+};
+async function syncWalletFromServer() {
+  const ok = await Api.ensureSession();
+  if (!ok) return false;
+  const r = await Api.getWallet();
+  if (r.ok) { Store.data.balanceUSD = r.body.balanceUsd; Store.save(); return true; }
+  return false;
 }
 
 const $ = id => document.getElementById(id);
@@ -2369,19 +2437,26 @@ function startRun() {
 function endRun(reason) {
   if (Game.state !== 'running') return;
   Game.state = 'dead'; Sfx.hit(); Game.shake = 20;
-  const earnedUSD = Math.floor(Game.distance / 100) * USD_PER_100M;
-  Store.data.balanceUSD += earnedUSD;
+  // Optimistic local estimate so the overlay isn't blank while we wait on the
+  // network — the server has the last word on the actual credited amount.
+  const estimatedUSD = Math.floor(Game.distance / 100) * USD_PER_100M;
   Store.data.runs += 1;
   Store.data.totalDist += Math.floor(Game.distance);
   if (Game.score > Store.data.best) Store.data.best = Game.score;
   Store.save(); refreshTopBar();
   overStats.innerHTML =
     `Score: <b>${Game.score}</b> &nbsp; Best: <b>${Store.data.best}</b><br>` +
-    (earnedUSD > 0 ? `+${fmtMoney(earnedUSD)} earned<br>` : '') +
+    (estimatedUSD > 0 ? `+${fmtMoney(estimatedUSD)} earned<br>` : '') +
     (reason ? `<small style="color:#ff8888">${reason}</small><br>` : '') +
     `<small>Distance: ${Math.floor(Game.distance)}m</small>`;
   overOverlay.classList.remove('hidden');
   refreshAllUI();
+  if (estimatedUSD > 0) {
+    Api.gameClaim(Game.distance).then(r => {
+      if (r.ok) { Store.data.balanceUSD = r.body.balanceUsd; Store.save(); refreshTopBar(); renderWallet(); }
+      else if (!r.offline) toast('Run reward could not be confirmed with the server');
+    });
+  }
   setTimeout(() => { if (Game.state === 'dead') startRun(); }, 2400);
 }
 function activateRelic(type) {
@@ -2752,15 +2827,21 @@ function refreshDaily() {
   if (claimedToday) { btn.disabled = true; btn.textContent = '✓ Claimed — Come Back Tomorrow'; btn.style.opacity = 0.6; }
   else { btn.disabled = false; btn.textContent = `Claim Day ${streak+1} — ${fmtMoney(DAILY_REWARDS_USD[streak])}`; btn.style.opacity = 1; }
 }
-$('claimDailyBtn').addEventListener('click', () => {
+$('claimDailyBtn').addEventListener('click', async () => {
   const dayIndex = Math.floor(Date.now()/86400000);
   if (Store.data.lastDailyClaim === dayIndex) return;
-  const reward = DAILY_REWARDS_USD[Store.data.dailyStreak % 7];
-  Store.data.balanceUSD += reward;
-  Store.data.dailyStreak++;
+  const btn = $('claimDailyBtn'); btn.disabled = true;
+  const r = await Api.dailyClaim();
+  if (!r.ok) {
+    btn.disabled = false;
+    toast(r.offline ? 'Backend unreachable — try again later' : (r.error || 'Could not claim'));
+    return;
+  }
+  Store.data.dailyStreak = r.body.streak;
   Store.data.lastDailyClaim = dayIndex;
+  Store.data.balanceUSD = r.body.balanceUsd;
   Store.save(); Sfx.cash();
-  toast(`+${fmtMoney(reward)} claimed!`);
+  toast(`+${fmtMoney(r.body.credited)} claimed!`);
   refreshDaily(); refreshTopBar(); refreshAllUI();
 });
 
@@ -2806,40 +2887,48 @@ function refreshMissions() {
   });
 }
 
-$('watchAdBtn').addEventListener('click', () => {
-  const now = Date.now();
-  if (now - Store.data.lastAdWatch < 30*60*1000) {
-    const mins = Math.ceil((30*60*1000 - (now - Store.data.lastAdWatch))/60000);
-    toast(`Available in ${mins} min`); return;
-  }
+// NOTE: the 30-minute client-side cooldown below is just UI pacing — it's
+// not what stops abuse. The real reward only lands after Api.adComplete
+// resolves, and in production that call should come from your ad network's
+// server-side reward callback, not from this timer. See backend/README.md.
+$('watchAdBtn').addEventListener('click', async () => {
   const btn = $('watchAdBtn');
+  const started = await Api.adStart();
+  if (!started.ok) { toast(started.offline ? 'Backend unreachable' : (started.error || 'Ad unavailable')); return; }
+  const sessionId = started.body.sessionId;
   btn.disabled = true;
   let remaining = 3; btn.textContent = `▶ ${remaining}s`;
-  const iv = setInterval(() => {
+  const iv = setInterval(async () => {
     remaining--;
     if (remaining <= 0) {
       clearInterval(iv);
-      Store.data.balanceUSD += 0.25;
-      Store.data.lastAdWatch = Date.now();
-      Store.save(); Sfx.cash(); toast('+$0.25 rewarded!');
+      const r = await Api.adComplete(sessionId);
+      if (r.ok) {
+        Store.data.balanceUSD = r.body.balanceUsd; Store.save();
+        Sfx.cash(); toast(`+${fmtMoney(r.body.credited)} rewarded!`);
+      } else {
+        toast(r.offline ? 'Reward not confirmed — offline' : (r.error || 'Reward could not be confirmed'));
+      }
       btn.disabled = false; btn.textContent = 'WATCH';
       refreshTopBar(); refreshAllUI();
     } else btn.textContent = `▶ ${remaining}s`;
   }, 1000);
 });
 
-$('spinBtn').addEventListener('click', () => {
-  const now = Date.now();
-  if (now - Store.data.lastSpin < 24*60*60*1000) {
-    const hrs = Math.ceil((24*60*60*1000 - (now - Store.data.lastSpin))/3600000);
-    toast(`Spin available in ${hrs}h`); return;
+$('spinBtn').addEventListener('click', async () => {
+  const btn = $('spinBtn'); btn.disabled = true;
+  const r = await Api.spinClaim();
+  btn.disabled = false;
+  if (!r.ok) {
+    if (r.status === 429 && r.body && r.body.msRemaining) {
+      toast(`Spin available in ${Math.ceil(r.body.msRemaining/3600000)}h`);
+    } else {
+      toast(r.offline ? 'Backend unreachable' : (r.error || 'Spin failed'));
+    }
+    return;
   }
-  const rewards = [0.05, 0.10, 0.15, 0.25, 0.50, 1.00];
-  const reward = rewards[(Math.random()*rewards.length)|0];
-  Store.data.balanceUSD += reward;
-  Store.data.lastSpin = now;
-  Store.save(); Sfx.cash();
-  toast(`🎰 You won ${fmtMoney(reward)}!`);
+  Store.data.balanceUSD = r.body.balanceUsd; Store.save(); Sfx.cash();
+  toast(`🎰 You won ${fmtMoney(r.body.credited)}!`);
   refreshTopBar(); refreshAllUI();
 });
 
@@ -2925,14 +3014,24 @@ function applyMethodMeta() {
   $('wdAccount').value = ''; $('errAccount').textContent = '';
 }
 applyMethodMeta();
-function renderWithdrawHistory() {
+// Withdrawal history now comes from the server (Store.data.withdrawals is no
+// longer the source of truth — the server's ledger-backed record is), so the
+// render function reads the server's field names (amount_usd, created_at)
+// instead of the old client-invented ones (amountUSD, date).
+async function renderWithdrawHistory() {
   const hist = $('wdHistory');
-  if (!Store.data.withdrawals.length) { hist.innerHTML = '<div class="empty">No withdrawals yet.</div>'; return; }
-  hist.innerHTML = Store.data.withdrawals.slice().reverse().map(w => `
+  const r = await Api.getWithdrawHistory();
+  if (!r.ok) {
+    hist.innerHTML = `<div class="empty">${r.offline ? 'Backend unreachable — showing nothing to avoid stale data.' : 'Could not load withdrawal history.'}</div>`;
+    return;
+  }
+  const list = r.body.withdrawals || [];
+  if (!list.length) { hist.innerHTML = '<div class="empty">No withdrawals yet.</div>'; return; }
+  hist.innerHTML = list.map(w => `
     <div class="wd-item">
       <div class="l">
-        <div class="amt">${fmtMoney(w.amountUSD, w.currency)}</div>
-        <div class="meta">${w.method.toUpperCase()} · ${w.account} · ${w.date}</div>
+        <div class="amt">${fmtMoney(w.amount_usd)}</div>
+        <div class="meta">${w.method.toUpperCase()} · ${w.account} · ${new Date(w.created_at).toLocaleString()}</div>
       </div>
       <span class="status ${w.status.toLowerCase()}">${w.status}</span>
     </div>
@@ -2948,27 +3047,25 @@ $('wdSubmit').addEventListener('click', async () => {
   const amountUSD = localToUSD(amountLocal, c);
   if (amountUSD < MIN_WITHDRAW_USD) { $('errAmount').textContent = `Min is ${fmtMoney(MIN_WITHDRAW_USD, c)}`; return; }
   if (amountUSD > Store.data.balanceUSD) { $('errAmount').textContent = `Insufficient. Available: ${fmtMoney(Store.data.balanceUSD, c)}`; return; }
-  Store.data.balanceUSD -= amountUSD;
-  const wd = { id:'wd_' + Date.now(), amountUSD: Number(amountUSD.toFixed(4)), currency:c, method:selectedMethod, account, status:'pending', date: new Date().toLocaleString() };
-  Store.data.withdrawals.push(wd); Store.save();
+
+  const btn = $('wdSubmit'); btn.disabled = true;
+  // The server re-checks balance and re-validates everything above server-side
+  // too — the client-side checks are just for a snappy error message, they
+  // grant nothing on their own.
+  const r = await Api.withdraw({ amountUsd: Number(amountUSD.toFixed(4)), method: selectedMethod, account });
+  btn.disabled = false;
+  if (!r.ok) {
+    $('errAmount').textContent = r.offline ? 'Backend unreachable' : (r.error || 'Withdrawal failed');
+    return;
+  }
+  Store.data.balanceUSD = r.body.balanceUsd; Store.save();
   refreshTopBar(); renderWallet(); renderWithdrawHistory();
   Sfx.cash(); toast(`🚀 Withdrawal of ${fmtMoney(amountUSD, c)} requested`);
   $('wdAccount').value = ''; $('wdAmount').value = '';
-  if (PAYOUT_API_URL) {
-    try {
-      const res = await fetch(PAYOUT_API_URL, { method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ withdrawalId: wd.id, amountUSD: wd.amountUSD, currency: wd.currency, method: wd.method, account: wd.account,
-          user:{ id: Store.data.profile.id, name: Store.data.profile.name, email: Store.data.profile.email } }) });
-      const json = await res.json().catch(() => ({}));
-      if (res.ok && json.success) { wd.status = 'processing'; Store.save(); renderWithdrawHistory(); toast('✅ Sent to payment provider'); }
-      else { wd.status = 'rejected'; Store.data.balanceUSD += amountUSD; Store.save(); refreshTopBar(); renderWallet(); renderWithdrawHistory(); toast('❌ Rejected — refunded'); }
-    } catch (e) {
-      wd.status = 'rejected'; Store.data.balanceUSD += amountUSD; Store.save(); refreshTopBar(); renderWallet(); renderWithdrawHistory(); toast('❌ Network error — refunded');
-    }
-  } else {
-    setTimeout(() => { const w = Store.data.withdrawals.find(x => x.id === wd.id); if (w) { w.status = 'processing'; Store.save(); renderWithdrawHistory(); toast('⏳ Processing…'); } }, 2500);
-    setTimeout(() => { const w = Store.data.withdrawals.find(x => x.id === wd.id); if (w) { w.status = 'paid'; Store.save(); renderWithdrawHistory(); toast('✅ Paid (simulation)'); } }, 7000);
-  }
+  // No client-side polling/faking of status here anymore — status changes
+  // (processing/paid/rejected) happen server-side once a real payout provider
+  // is wired in (see backend/payout.js) and are picked up next time
+  // renderWithdrawHistory() runs.
 });
 function renderProfile() {
   const p = Store.data.profile;
@@ -3023,6 +3120,12 @@ resize(); refreshAllUI(); resetRun(); updateHUD();
 requestAnimationFrame(frame);
 document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => setTimeout(resize, 30)));
 fetchLiveRates().then(() => { renderWallet(); renderWithdrawHistory(); refreshAllUI(); });
+// Pull the authoritative balance from the server as soon as a session exists.
+// Until this resolves, the UI shows whatever was last cached in localStorage.
+syncWalletFromServer().then(ok => {
+  if (ok) { refreshTopBar(); renderWallet(); renderWithdrawHistory(); }
+  else toast('Could not reach backend — showing cached balance');
+});
 
 })();
 </script>
